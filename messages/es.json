@@ -1,0 +1,52 @@
+{
+  "Common": {
+    "title": "IdeaOS",
+    "dashboard": "Panel de Control",
+    "ideas": "Ideas",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión",
+    "newIdea": "Nueva Idea",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "loading": "Cargando..."
+  },
+  "Ideas": {
+    "newTitle": "Enviar una Nueva Idea",
+    "freeMode": "Modo Libre",
+    "structuredMode": "Modo Estructurado",
+    "audioMode": "Modo Audio",
+    "titleLabel": "Título",
+    "titlePlaceholder": "Un título descriptivo para tu idea",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "Explica de qué trata tu idea...",
+    "sectorLabel": "Sector",
+    "sectorPlaceholder": "ej. Fintech, Salud, IA...",
+    "targetMarketLabel": "Mercado Objetivo",
+    "targetMarketPlaceholder": "¿Para quién es esto?",
+    "businessModelLabel": "Modelo de Negocio",
+    "businessModelPlaceholder": "¿Cómo ganará dinero?",
+    "notesLabel": "Notas Adicionales",
+    "notesPlaceholder": "Cualquier otro detalle relevante...",
+    "audioStart": "Empezar a Grabar",
+    "audioStop": "Detener Grabación",
+    "audioTranscribing": "Transcribiendo...",
+    "audioSuccess": "Audio transcrito con éxito",
+    "submitButton": "Crear Idea",
+    "contextQuestionsTitle": "Refina tu idea",
+    "contextQuestionsDescription": "El Agente de Contexto tiene algunas preguntas para mejorar el análisis.",
+    "skipAndAnalyze": "Saltar y Analizar",
+    "answerAndAnalyze": "Responder y Analizar",
+    "rankingMode": "Modo de Ranking",
+    "bestOpportunity": "Mejor oportunidad total",
+    "mostViable": "Más viable ahora",
+    "competitiveAdvantage": "Mayor ventaja competitiva",
+    "valueEffort": "Mejor valor / esfuerzo",
+    "mostUncertain": "Más incierta (validar primero)"
+  },
+  "Auth": {
+    "login": "Iniciar Sesión",
+    "register": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña"
+  }
+}

@@ -1,0 +1,248 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Plan {
+  free
+  pro
+}
+
+enum WorkspaceRole {
+  owner
+  editor
+  viewer
+}
+
+enum IdeaStatus {
+  active
+  archived
+}
+
+enum InputType {
+  text
+  audio
+}
+
+enum AgentType {
+  market
+  competition
+  economics
+  gtm
+  founder_fit
+}
+
+enum Criticality {
+  high
+  medium
+  low
+}
+
+enum HypothesisStatus {
+  unvalidated
+  confirmed
+  invalidated
+}
+
+enum ExperimentStatus {
+  pending
+  in_progress
+  done
+}
+
+enum ExportFormat {
+  pdf
+  docx
+  audio
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  name      String?
+  avatarUrl String?  @map("avatar_url")
+  locale    String   @default("es")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  ownedWorkspaces      Workspace[]       @relation("WorkspaceOwner")
+  workspaceMemberships WorkspaceMember[]
+  ideas                Idea[]
+  audioInputs          AudioInput[]
+  exports              Export[]
+
+  @@map("users")
+}
+
+model Workspace {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  slug      String   @unique
+  ownerId   String   @map("owner_id") @db.Uuid
+  plan      Plan     @default(free)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  owner   User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members WorkspaceMember[]
+  ideas   Idea[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  workspaceId String        @map("workspace_id") @db.Uuid
+  userId      String        @map("user_id") @db.Uuid
+  role        WorkspaceRole @default(viewer)
+  invitedAt   DateTime      @default(now()) @map("invited_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([workspaceId, userId])
+  @@map("workspace_members")
+}
+
+model Idea {
+  id              String     @id @default(uuid()) @db.Uuid
+  workspaceId     String     @map("workspace_id") @db.Uuid
+  createdBy       String     @map("created_by") @db.Uuid
+  title           String
+  description     String
+  sector          String?
+  targetMarket    String?    @map("target_market")
+  businessModel   String?    @map("business_model")
+  notes           String?
+  contextAnswers  Json?      @map("context_answers")
+  compositeScore  Float?     @map("composite_score")
+  confidenceScore Float?     @map("confidence_score")
+  volatilityScore Float?     @map("volatility_score")
+  status          IdeaStatus @default(active)
+  inputType       InputType  @default(text) @map("input_type")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  workspace      Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creator        User             @relation(fields: [createdBy], references: [id])
+  analyses       Analysis[]
+  hypotheses     Hypothesis[]
+  experiments    Experiment[]
+  audioInputs    AudioInput[]
+  exports        Export[]
+  rankingHistory RankingHistory[]
+
+  @@index([workspaceId])
+  @@index([createdBy])
+  @@map("ideas")
+}
+
+model Analysis {
+  id                   String    @id @default(uuid()) @db.Uuid
+  ideaId               String    @map("idea_id") @db.Uuid
+  agentType            AgentType @map("agent_type")
+  score                Float
+  headline             String
+  strengths            String[]
+  risks                String[]
+  recommendation       String
+  hypotheses           String[]
+  nextValidationAction String    @map("next_validation_action")
+  webSearchUsed        Boolean   @default(false) @map("web_search_used")
+  inputHash            String?   @map("input_hash")
+  modelVersion         String    @map("model_version")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@index([ideaId])
+  @@index([ideaId, agentType])
+  @@map("analyses")
+}
+
+model Hypothesis {
+  id          String           @id @default(uuid()) @db.Uuid
+  ideaId      String           @map("idea_id") @db.Uuid
+  agentType   AgentType        @map("agent_type")
+  description String
+  criticality Criticality      @default(medium)
+  status      HypothesisStatus @default(unvalidated)
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  idea        Idea         @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  experiments Experiment[]
+
+  @@index([ideaId])
+  @@map("hypotheses")
+}
+
+model Experiment {
+  id           String           @id @default(uuid()) @db.Uuid
+  ideaId       String           @map("idea_id") @db.Uuid
+  hypothesisId String?          @map("hypothesis_id") @db.Uuid
+  type         String
+  description  String
+  status       ExperimentStatus @default(pending)
+  result       String?
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  idea       Idea        @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  hypothesis Hypothesis? @relation(fields: [hypothesisId], references: [id], onDelete: SetNull)
+
+  @@index([ideaId])
+  @@index([hypothesisId])
+  @@map("experiments")
+}
+
+model AudioInput {
+  id              String   @id @default(uuid()) @db.Uuid
+  ideaId          String   @map("idea_id") @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  storageUrl      String   @map("storage_url")
+  transcript      String?
+  durationSeconds Float?   @map("duration_seconds")
+  whisperModel    String?  @map("whisper_model")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([ideaId])
+  @@map("audio_inputs")
+}
+
+model Export {
+  id         String       @id @default(uuid()) @db.Uuid
+  ideaId     String       @map("idea_id") @db.Uuid
+  userId     String       @map("user_id") @db.Uuid
+  format     ExportFormat
+  storageUrl String       @map("storage_url")
+  createdAt  DateTime     @default(now()) @map("created_at")
+
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([ideaId])
+  @@map("exports")
+}
+
+model RankingHistory {
+  id              String   @id @default(uuid()) @db.Uuid
+  ideaId          String   @map("idea_id") @db.Uuid
+  compositeScore  Float    @map("composite_score")
+  confidenceScore Float    @map("confidence_score")
+  volatilityScore Float    @map("volatility_score")
+  reason          String?
+  snapshotAt      DateTime @default(now()) @map("snapshot_at")
+
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@index([ideaId])
+  @@index([snapshotAt])
+  @@map("ranking_history")
+}
