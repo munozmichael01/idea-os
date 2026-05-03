@@ -1,4 +1,4 @@
-import { redirect } from '@/navigation';
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
 export function generateStaticParams() {
@@ -13,10 +13,9 @@ export default async function IndexPage({
   const { locale } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (user) {
-    redirect('/dashboard');
+    redirect(`/${locale}/dashboard`);
   } else {
-    redirect('/login');
+    redirect(`/${locale}/login`);
   }
 }
