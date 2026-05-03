@@ -128,22 +128,22 @@ export interface CreateIdeaPayload {
   workspaceId: string
   title: string
   description: string
-  sector?: string
-  targetMarket?: string
-  businessModel?: string
-  notes?: string
-  inputType?: InputType
+  sector?: string | undefined
+  targetMarket?: string | undefined
+  businessModel?: string | undefined
+  notes?: string | undefined
+  inputType?: InputType | undefined
 }
 
 export interface UpdateIdeaPayload {
-  title?: string
-  description?: string
-  sector?: string
-  targetMarket?: string
-  businessModel?: string
-  notes?: string
-  status?: IdeaStatus
-  contextAnswers?: ContextAnswers
+  title?: string | undefined
+  description?: string | undefined
+  sector?: string | undefined
+  targetMarket?: string | undefined
+  businessModel?: string | undefined
+  notes?: string | undefined
+  status?: IdeaStatus | undefined
+  contextAnswers?: ContextAnswers | undefined
 }
 
 // ─── Export helpers ───────────────────────────────────────────────────────────
