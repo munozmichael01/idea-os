@@ -60,7 +60,7 @@ export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze 
               <div className="space-y-2">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Strengths</p>
                 <ul className="space-y-1">
-                  {analysis.strengths.slice(0, 3).map((s, i) => (
+                  {analysis.strengths.slice(0, 3).map((s: string, i: number) => (
                     <li key={i} className="flex items-start gap-2 text-xs">
                       <CheckCircle2 className="h-3 w-3 shrink-0 text-green-500" />
                       <span>{s}</span>
@@ -71,7 +71,7 @@ export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze 
               <div className="space-y-2">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Risks</p>
                 <ul className="space-y-1">
-                  {analysis.risks.slice(0, 3).map((r, i) => (
+                  {analysis.risks.slice(0, 3).map((r: string, i: number) => (
                     <li key={i} className="flex items-start gap-2 text-xs">
                       <AlertTriangle className="h-3 w-3 shrink-0 text-amber-500" />
                       <span>{r}</span>
