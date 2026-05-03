@@ -123,6 +123,7 @@ export async function updateIdea(
     await Promise.all(
       affectedAgentTypes.map(async (agentType) => {
         const agentDef = agentDefs[agentType]
+        if (!agentDef) return
         const newHash = computeInputHash(idea, agentDef.affectedBy)
 
         const existingAnalysis = await prisma.analysis.findFirst({
