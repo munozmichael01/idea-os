@@ -2,13 +2,14 @@
 
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
-import type { Prisma } from '@prisma/client'
 import type {
   Workspace,
   WorkspaceMember,
   WorkspaceMemberWithUser,
   WorkspaceRole,
 } from '@/lib/types'
+
+type TxClient = Omit<typeof prisma, '$connect' | '$disconnect' | '$on' | '$use' | '$extends'>
 
 // ─── createWorkspace ──────────────────────────────────────────────────────────
 
@@ -21,7 +22,7 @@ export async function createWorkspace(
   userId: string,
   payload: CreateWorkspacePayload
 ): Promise<Workspace> {
-  const workspace = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+  const workspace = await prisma.$transaction(async (tx: TxClient) => {
     const ws = await tx.workspace.create({
       data: {
         name: payload.name,
