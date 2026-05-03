@@ -188,6 +188,7 @@ export async function runAgentForIdea(ideaId: string, agentType: AgentType): Pro
   const idea = await prisma.idea.findUniqueOrThrow({ where: { id: ideaId } })
   const agentDefs = await getAllAgentDefinitions()
   const agentDef = agentDefs[agentType]
+  if (!agentDef) throw new Error(`No agent definition found for type: ${agentType}`)
   const contextAnswers = idea.contextAnswers as ContextAnswers | null
 
   const inputHash = computeInputHash(idea, agentDef.affectedBy)
