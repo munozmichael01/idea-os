@@ -1,15 +1,11 @@
 import prisma from '@/lib/prisma';
 import { getCurrentUser, getDefaultWorkspace } from '@/lib/actions/auth';
 import { DashboardClient } from './dashboard-client';
-import { redirect } from '@/navigation';
 import { Idea } from '@/lib/types';
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
-  if (!user) {
-    redirect('/login');
-    return null;
-  }
+  if (!user) return null;
 
   const workspace = await getDefaultWorkspace(user.id);
   if (!workspace) {
