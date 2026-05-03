@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Link } from '@/navigation';
 import { toast } from 'sonner';
-import { IdeaFull, AgentType, IdeaField, ContextAnswers } from '@/lib/types';
+import { IdeaFull, AgentType, IdeaField, ContextAnswers, Analysis } from '@/lib/types';
 import { updateIdea, runAgentForIdea, runAllAgents, runContextAgentForIdea } from '@/lib/actions/ideas';
 
 interface IdeaDetailClientProps {
@@ -49,17 +49,17 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   };
 
   const handleRunAgent = async (agentType: AgentType) => {
-    setAnalyzingAgents(prev => new Set(prev).add(agentType));
+    setAnalyzingAgents((prev: Set<AgentType>) => new Set(prev).add(agentType));
     try {
       await runAgentForIdea(idea.id, agentType);
-      const updatedIdea = await import('@/lib/actions/ideas').then(m => m.getIdea(idea.id));
+      const updatedIdea = await import('@/lib/actions/ideas').then((m: typeof import('@/lib/actions/ideas')) => m.getIdea(idea.id));
       setIdea(updatedIdea);
       toast.success(`Análisis de ${agentType} completado`);
     } catch (error) {
       console.error(`Error running agent ${agentType}:`, error);
       toast.error(`Error al analizar ${agentType}`);
     } finally {
-      setAnalyzingAgents(prev => {
+      setAnalyzingAgents((prev: Set<AgentType>) => {
         const next = new Set(prev);
         next.delete(agentType);
         return next;
@@ -71,7 +71,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
     setIsAnalyzingAll(true);
     try {
       await runAllAgents(idea.id);
-      const updatedIdea = await import('@/lib/actions/ideas').then(m => m.getIdea(idea.id));
+      const updatedIdea = await import('@/lib/actions/ideas').then((m: typeof import('@/lib/actions/ideas')) => m.getIdea(idea.id));
       setIdea(updatedIdea);
       toast.success('Análisis completo finalizado');
     } catch (error) {
@@ -86,7 +86,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
     setIsSummarizing(true);
     try {
       await runContextAgentForIdea(idea.id);
-      const updatedIdea = await import('@/lib/actions/ideas').then(m => m.getIdea(idea.id));
+      const updatedIdea = await import('@/lib/actions/ideas').then((m: typeof import('@/lib/actions/ideas')) => m.getIdea(idea.id));
       setIdea(updatedIdea);
       toast.success('Resumen de contexto actualizado');
     } catch (error) {
@@ -174,41 +174,41 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
                 label="Título" 
                 fieldName="title" 
                 value={idea.title} 
-                onSave={(v) => handleSaveField('title', v)} 
+                onSave={(v: string) => handleSaveField('title', v)} 
               />
               <EditableField 
                 label="Descripción" 
                 fieldName="description" 
                 value={idea.description} 
                 type="textarea"
-                onSave={(v) => handleSaveField('description', v)} 
+                onSave={(v: string) => handleSaveField('description', v)} 
               />
               <div className="grid gap-4 sm:grid-cols-2">
                 <EditableField 
                   label="Sector" 
                   fieldName="sector" 
                   value={idea.sector || ''} 
-                  onSave={(v) => handleSaveField('sector', v)} 
+                  onSave={(v: string) => handleSaveField('sector', v)} 
                 />
                 <EditableField 
                   label="Modelo de Negocio" 
                   fieldName="businessModel" 
                   value={idea.businessModel || ''} 
-                  onSave={(v) => handleSaveField('businessModel', v)} 
+                  onSave={(v: string) => handleSaveField('businessModel', v)} 
                 />
               </div>
               <EditableField 
                 label="Mercado Objetivo" 
                 fieldName="targetMarket" 
                 value={idea.targetMarket || ''} 
-                onSave={(v) => handleSaveField('targetMarket', v)} 
+                onSave={(v: string) => handleSaveField('targetMarket', v)} 
               />
               <EditableField 
                 label="Notas Adicionales" 
                 fieldName="notes" 
                 value={idea.notes || ''} 
                 type="textarea"
-                onSave={(v) => handleSaveField('notes', v)} 
+                onSave={(v: string) => handleSaveField('notes', v)} 
               />
             </div>
           </div>
@@ -234,7 +234,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               <AgentAnalysisCard 
                 key={agentType}
                 agentType={agentType}
-                analysis={idea.analyses.find(a => a.agentType === agentType)}
+                analysis={idea.analyses.find((a: Analysis) => a.agentType === agentType)}
                 isAnalyzing={analyzingAgents.has(agentType)}
                 onAnalyze={() => handleRunAgent(agentType)}
               />
