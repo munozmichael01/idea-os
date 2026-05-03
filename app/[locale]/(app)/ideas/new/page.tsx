@@ -30,7 +30,14 @@ export default function NewIdeaPage() {
     loadAuth();
   }, []);
 
-  const handleCreateIdea = async (data: { title: string; description: string; sector?: string; targetMarket?: string; businessModel?: string; notes?: string }) => {
+  const handleCreateIdea = async (data: { 
+    title: string; 
+    description: string; 
+    sector?: string | undefined; 
+    targetMarket?: string | undefined; 
+    businessModel?: string | undefined; 
+    notes?: string | undefined;
+  }) => {
     if (!userId || !workspaceId) {
       toast.error('Sesión no encontrada. Por favor, recarga la página.');
       return;

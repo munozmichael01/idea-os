@@ -26,7 +26,14 @@ const ideaSchema = z.object({
 type IdeaFormValues = z.infer<typeof ideaSchema>;
 
 interface NewIdeaFormProps {
-  onSubmit: (data: IdeaFormValues) => Promise<void>;
+  onSubmit: (data: {
+    title: string;
+    description: string;
+    sector?: string | undefined;
+    targetMarket?: string | undefined;
+    businessModel?: string | undefined;
+    notes?: string | undefined;
+  }) => Promise<void>;
 }
 
 export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
