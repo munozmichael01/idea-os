@@ -7,7 +7,7 @@ import { Link, useRouter } from '@/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { AuthShell } from '@/components/auth/auth-shell';
-import { Loader2, Chrome, Github } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const t = useTranslations('Auth');
@@ -82,11 +82,9 @@ export default function LoginPage() {
 
         <div className="grid grid-cols-2 gap-2">
           <Button type="button" variant="secondary" className="h-10 gap-2 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-primary)] hover:border-[var(--border-active)]">
-            <Chrome className="h-3.5 w-3.5" />
             Google
           </Button>
           <Button type="button" variant="secondary" className="h-10 gap-2 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-primary)] hover:border-[var(--border-active)]">
-            <Github className="h-3.5 w-3.5" />
             GitHub
           </Button>
         </div>
