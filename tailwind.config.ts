@@ -18,12 +18,27 @@ const config = {
   		}
   	},
   	extend: {
+  		fontFamily: {
+  			display: ['var(--font-display)', 'sans-serif'],
+  			ui: ['var(--font-ui)', 'sans-serif'],
+  			mono: ['var(--font-mono)', 'monospace'],
+  		},
   		colors: {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
+  			accent: {
+  				DEFAULT: 'var(--color-accent)',
+  				foreground: 'hsl(var(--accent-foreground))'
+  			},
+  			'accent-pri': 'var(--accent-pri)',
+  			'bg-base': 'var(--bg-base)',
+  			'bg-card': 'var(--bg-card)',
+  			'bg-elev': 'var(--bg-elev)',
+  			'border-subtle': 'var(--border-subtle)',
+  			'border-active': 'var(--border-active)',
   			primary: {
   				DEFAULT: 'hsl(var(--primary))',
   				foreground: 'hsl(var(--primary-foreground))'

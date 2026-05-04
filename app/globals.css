@@ -2,10 +2,103 @@
 @tailwind components;
 @tailwind utilities;
 
+/* IdeaOS — Dark design system */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
 @layer base {
   :root {
+    /* Surfaces */
+    --bg-base: #07070f;
+    --bg-card: #0a0a18;
+    --bg-elev: #0d0d1a;
+    --bg-hover: #11112a;
+    --bg-sunken: #050505;
+
+    /* Borders */
+    --border-subtle: #1e1e3a;
+    --border-active: #2a2a4a;
+    --border-strong: #3a3a3a;
+
+    /* Text */
+    --text-primary: #F0F0F0;
+    --text-secondary: #AAAAAA;
+    --text-muted: #555555;
+    --text-placeholder: #333333;
+
+    /* Glow alphas */
+    --glow-purple: rgba(167, 139, 250, 0.08);
+    --glow-green: rgba(0, 229, 160, 0.04);
+    --shimmer: rgba(255,255,255,0.03);
+
+    /* Accents */
+    --green: #00E5A0;
+    --orange: #FF6B35;
+    --yellow: #FFD700;
+    --purple: #A78BFA;
+    --blue: #38BDF8;
+    --red: #FF4444;
+
+    --color-accent: #00E5A0;
+    --color-background: #07070f;
+
+    /* Agents */
+    --a-market: #00E5A0;
+    --a-comp: #FF6B35;
+    --a-econ: #FFD700;
+    --a-gtm: #A78BFA;
+    --a-fit: #38BDF8;
+    --a-ctx: #888888;
+
+    /* Type */
+    --font-display: 'Syne', sans-serif;
+    --font-ui: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', ui-monospace, monospace;
+
+    /* Primary Accent */
+    --accent-pri: #C6FF3D;
+    --accent-pri-hover: #d9ff6b;
+    --accent-pri-ink: #0a0a0a;
+
+    /* Shadcn UI compatibility (Dark mode by default) */
+    --background: 240 10% 3.5%; /* #07070f */
+    --foreground: 0 0% 98%;
+    --card: 240 10% 4.7%; /* #0a0a18 */
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 60 100% 62%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 60 100% 62%;
+    --radius: 0.75rem;
+
+    /* Sidebar overrides */
+    --sidebar-background: 240 10% 3.9%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 60 100% 62%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Already dark by default, but let's be explicit if needed */
+    --bg-base: #000000;
+    --bg-sunken: #050505;
+  }
+
+  [data-theme="light"] {
     --bg-base: #f4f3ee;
     --bg-card: #ffffff;
     --bg-elev: #faf9f5;
@@ -16,7 +109,7 @@
     --border-active: #d4d2c9;
     --border-strong: #b8b6ad;
 
-    --text-primary: #0a0a16;
+    --text-primary: #0a0a0a;
     --text-secondary: #56564f;
     --text-muted: #8a8a82;
     --text-placeholder: #c4c2b8;
@@ -31,10 +124,6 @@
     --purple: #7c3aed;
     --blue: #3b82f6;
     --red: #d83838;
-
-    --font-display: 'Syne', sans-serif;
-    --font-ui: 'DM Sans', sans-serif;
-    --font-mono: 'DM Mono', ui-monospace, monospace;
 
     /* Shadcn UI compatibility */
     --background: 0 0% 95%;
@@ -56,63 +145,6 @@
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 240 10% 3.9%;
-    --radius: 0.75rem;
-  }
-
-  .dark {
-    --bg-base: #000000;
-    --bg-card: #0a0a0a;
-    --bg-elev: #131313;
-    --bg-hover: #1a1a1a;
-    --bg-sunken: #050505;
-
-    --border-subtle: #1a1a1a;
-    --border-active: #2a2a2a;
-    --border-strong: #3a3a3a;
-
-    --text-primary: #ffffff;
-    --text-secondary: #a8a8a8;
-    --text-muted: #666666;
-    --text-placeholder: #3a3a3a;
-
-    --accent-pri: #C6FF3D;
-    --accent-pri-hover: #d9ff6b;
-    --accent-pri-ink: #0a0a0a;
-
-    --green: #C6FF3D;
-    --orange: #ff8a4c;
-    --yellow: #ffd75a;
-    --purple: #a78bfa;
-    --blue: #7cc7ff;
-    --red: #ff5c5c;
-
-    --a-market: #C6FF3D;
-    --a-comp:   #ff8a4c;
-    --a-econ:   #ffd75a;
-    --a-gtm:    #c4a8ff;
-    --a-fit:    #7cc7ff;
-    --a-ctx:    #888888;
-
-    /* Shadcn UI compatibility */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 60 100% 62%;
-    --primary-foreground: 0 0% 4%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 60 100% 62%;
   }
 }
 
@@ -128,15 +160,22 @@
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.005em;
   }
+  
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
 }
 
-/* Custom classes from design system */
 @layer components {
-  .btn-primary {
-    @apply bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] font-medium transition-all hover:bg-[var(--accent-pri-hover)] hover:-translate-y-0.5 active:translate-y-0;
-  }
-  
   .card-premium {
     @apply bg-[var(--bg-card)] border-[var(--border-subtle)] rounded-[18px] p-[22px] transition-all hover:border-[var(--border-active)] hover:-translate-y-0.5;
+  }
+
+  .btn-primary {
+    @apply bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] font-bold transition-all hover:bg-[var(--accent-pri-hover)] hover:-translate-y-0.5 active:translate-y-0;
   }
 }
