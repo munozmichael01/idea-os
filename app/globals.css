@@ -2,9 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --bg-base: #f4f3ee;
+    --bg-card: #ffffff;
+    --bg-elev: #faf9f5;
+    --bg-hover: #f0efe9;
+    --bg-sunken: #ebeae3;
+
+    --border-subtle: #e6e4dc;
+    --border-active: #d4d2c9;
+    --border-strong: #b8b6ad;
+
+    --text-primary: #0a0a16;
+    --text-secondary: #56564f;
+    --text-muted: #8a8a82;
+    --text-placeholder: #c4c2b8;
+
+    --accent-pri: #1a1a1a;
+    --accent-pri-hover: #000000;
+    --accent-pri-ink: #C6FF3D;
+
+    --green: #16a86e;
+    --orange: #d96a2c;
+    --yellow: #b88600;
+    --purple: #7c3aed;
+    --blue: #3b82f6;
+    --red: #d83838;
+
+    --font-display: 'Syne', sans-serif;
+    --font-ui: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', ui-monospace, monospace;
+
+    /* Shadcn UI compatibility */
+    --background: 0 0% 95%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
@@ -23,31 +56,52 @@
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 240 10% 3.9%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
+    --bg-base: #000000;
+    --bg-card: #0a0a0a;
+    --bg-elev: #131313;
+    --bg-hover: #1a1a1a;
+    --bg-sunken: #050505;
+
+    --border-subtle: #1a1a1a;
+    --border-active: #2a2a2a;
+    --border-strong: #3a3a3a;
+
+    --text-primary: #ffffff;
+    --text-secondary: #a8a8a8;
+    --text-muted: #666666;
+    --text-placeholder: #3a3a3a;
+
+    --accent-pri: #C6FF3D;
+    --accent-pri-hover: #d9ff6b;
+    --accent-pri-ink: #0a0a0a;
+
+    --green: #C6FF3D;
+    --orange: #ff8a4c;
+    --yellow: #ffd75a;
+    --purple: #a78bfa;
+    --blue: #7cc7ff;
+    --red: #ff5c5c;
+
+    --a-market: #C6FF3D;
+    --a-comp:   #ff8a4c;
+    --a-econ:   #ffd75a;
+    --a-gtm:    #c4a8ff;
+    --a-fit:    #7cc7ff;
+    --a-ctx:    #888888;
+
+    /* Shadcn UI compatibility */
+    --background: 0 0% 0%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --card: 0 0% 4%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 0 0% 4%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 60 100% 62%;
+    --primary-foreground: 0 0% 4%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
@@ -58,28 +112,31 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --ring: 60 100% 62%;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.005em;
+  }
+}
+
+/* Custom classes from design system */
+@layer components {
+  .btn-primary {
+    @apply bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] font-medium transition-all hover:bg-[var(--accent-pri-hover)] hover:-translate-y-0.5 active:translate-y-0;
+  }
+  
+  .card-premium {
+    @apply bg-[var(--bg-card)] border-[var(--border-subtle)] rounded-[18px] p-[22px] transition-all hover:border-[var(--border-active)] hover:-translate-y-0.5;
   }
 }
