@@ -77,7 +77,7 @@ export function HypothesisList({ hypotheses }: HypothesisListProps) {
       <h2 className="section-title-lg flex items-center gap-3 text-[18px] font-bold font-display text-[var(--text-primary)] mb-6">
         Hipótesis
         <span className="sub font-normal text-[13px] text-[var(--text-muted)] font-sans">
-          {hypotheses.length} totales · {hypotheses.filter(h => h.status === 'pending').length} pendientes
+          {hypotheses.length} totales · {hypotheses.filter(h => h.status === 'unvalidated').length} pendientes
         </span>
       </h2>
       
