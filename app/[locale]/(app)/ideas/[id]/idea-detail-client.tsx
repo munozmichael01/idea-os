@@ -97,6 +97,19 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
     }
   };
 
+  const handleListenSummary = () => {
+    if (!window.speechSynthesis) {
+      toast.error('Tu navegador no soporta la síntesis de voz.');
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const textToSpeak = `Idea: ${idea.title}. Sector: ${idea.sector || 'No especificado'}. Modelo de negocio: ${idea.businessModel || 'No especificado'}. Resumen: ${idea.description}`;
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = 'es-ES';
+    window.speechSynthesis.speak(utterance);
+    toast.info('Reproduciendo resumen...');
+  };
+
   const analysisAgents: AgentType[] = ['market', 'competition', 'economics', 'gtm', 'founder_fit'];
   const contextAnswers = idea.contextAnswers as ContextAnswers | null;
 
@@ -182,7 +195,11 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               {isAnalyzingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               Analizar todo
             </Button>
-            <Button variant="secondary" className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)] font-medium">
+            <Button 
+              variant="secondary" 
+              className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)] font-medium"
+              onClick={handleListenSummary}
+            >
               <Volume2 className="h-4 w-4" />
               Escuchar resumen
             </Button>

@@ -72,16 +72,26 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
       chunksRef.current = [];
 
       mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
+        if (e.data && e.data.size > 0) {
+          chunksRef.current.push(e.data);
+          console.log('Received audio chunk:', e.data.size);
+        }
       };
 
       mediaRecorder.onstop = async () => {
+        console.log('Recording stopped, total chunks:', chunksRef.current.length);
         const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        await handleTranscribe(audioBlob);
+        console.log('Audio blob created, size:', audioBlob.size);
+        if (audioBlob.size > 0) {
+          await handleTranscribe(audioBlob);
+        } else {
+          toast.error('No se capturó audio. Intenta de nuevo.');
+        }
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(1000); // Send data every second
       setIsRecording(true);
+      console.log('Recording started');
     } catch (err) {
       console.error('Error accessing microphone:', err);
       toast.error('Could not access microphone');
@@ -99,6 +109,7 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
   const handleTranscribe = async (blob: Blob) => {
     setIsTranscribing(true);
     try {
+      console.log('Starting transcription...');
       const formData = new FormData();
       formData.append('audio', blob, 'recording.webm');
 
@@ -107,16 +118,29 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Transcription failed');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Transcription failed');
+      }
 
-      const { transcript: result } = await response.json();
-      setValue('description', result, { shouldValidate: true });
-      setTranscript(result);
-      setActiveTab('free');
-      toast.success('Audio transcrito correctamente');
+      const data = await response.json();
+      const result = data.transcript;
+      console.log('Transcription result received:', result);
+      
+      if (result) {
+        setValue('description', result, { shouldValidate: true });
+        setTranscript(result);
+        toast.success('Audio transcrito correctamente');
+        // Let user see the transcript for a moment before switching
+        setTimeout(() => {
+          setActiveTab('free');
+        }, 1500);
+      } else {
+        toast.error('No se pudo obtener texto del audio.');
+      }
     } catch (err) {
       console.error('Transcription error:', err);
-      toast.error('Error al transcribir audio');
+      toast.error('Error al transcribir audio: ' + (err instanceof Error ? err.message : 'Error desconocido'));
     } finally {
       setIsTranscribing(false);
     }
