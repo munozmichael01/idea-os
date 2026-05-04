@@ -22,10 +22,10 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/navigation';
-import { cn } from '@/lib/utils';
+import { IdeaWithAnalyses } from '@/lib/types';
 
 interface DashboardClientProps {
-  initialIdeas: Idea[];
+  initialIdeas: IdeaWithAnalyses[];
 }
 
 const StatCard = ({ label, value, unit, trend, icon: Icon }: any) => {

@@ -19,8 +19,9 @@ export default async function DashboardPage() {
 
   const ideas = await prisma.idea.findMany({
     where: { workspaceId: workspace.id },
+    include: { analyses: true },
     orderBy: { createdAt: 'desc' },
   });
 
-  return <DashboardClient initialIdeas={ideas as Idea[]} />;
+  return <DashboardClient initialIdeas={ideas} />;
 }
