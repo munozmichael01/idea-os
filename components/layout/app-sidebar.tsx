@@ -46,7 +46,10 @@ export function AppSidebar() {
     async function loadUser() {
       const u = await getCurrentUser();
       if (u) {
-        setUser({ name: u.name || 'User', email: u.email });
+        setUser({ 
+          name: (u.user_metadata?.name as string) || u.email?.split('@')[0] || 'User', 
+          email: u.email || '' 
+        });
       }
     }
     loadUser();
@@ -224,7 +227,7 @@ export function AppSidebar() {
           isCollapsed && "justify-center"
         )}>
           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#2a2a4a] to-[#1e1e3a] flex items-center justify-center text-[11px] font-mono font-medium text-[var(--text-primary)] flex-shrink-0">
-            {user?.name.substring(0, 2).toUpperCase() || '??'}
+            {user?.name?.substring(0, 2).toUpperCase() || '??'}
           </div>
           {!isCollapsed && (
             <div className="flex flex-col min-w-0">
