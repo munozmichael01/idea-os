@@ -1,27 +1,27 @@
 'use client';
 
 import * as React from 'react';
-import { IdeaScoreRings } from '@/components/ideas/detail/score-rings';
 import { AgentAnalysisCard, ContextAgentCard } from '@/components/ideas/detail/agent-cards';
 import { EditableField } from '@/components/ideas/detail/editable-field';
 import { HypothesisList } from '@/components/ideas/detail/hypothesis-list';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Download, 
   Volume2, 
   Loader2, 
-  ArrowLeft,
-  Calendar,
-  User as UserIcon,
-  Play
+  Sparkles,
+  Search,
+  Bell,
+  Plus,
+  ArrowRight,
+  FileText
 } from 'lucide-react';
 import { Link } from '@/navigation';
 import { toast } from 'sonner';
 import { IdeaFull, AgentType, IdeaField, ContextAnswers, Analysis } from '@/lib/types';
 import { updateIdea, runAgentForIdea, runAllAgents, runContextAgentForIdea } from '@/lib/actions/ideas';
+import { ScoreRing, scoreColor, scoreLabel, scoreBg } from '@/components/ui/score-ring';
+import { cn } from '@/lib/utils';
 
 interface IdeaDetailClientProps {
   initialIdea: IdeaFull;
@@ -97,85 +97,168 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
     }
   };
 
-  const handleSynthesize = async () => {
-    toast.info('La síntesis de voz estará disponible en la Fase 2');
-  };
-
   const analysisAgents: AgentType[] = ['market', 'competition', 'economics', 'gtm', 'founder_fit'];
   const contextAnswers = idea.contextAnswers as ContextAnswers | null;
 
-  return (
-    <div className="container max-w-7xl space-y-8 py-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div className="space-y-1">
-          <Link 
-            href="/dashboard" 
-            className="flex items-center text-xs text-muted-foreground hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="mr-1 h-3 w-3" />
-            Volver al Dashboard
-          </Link>
-          <h1 className="text-3xl font-bold tracking-tight">{idea.title}</h1>
-          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              <span>Creado el {new Date(idea.createdAt).toLocaleDateString()}</span>
-            </div>
-            <Separator orientation="vertical" className="h-3" />
-            <div className="flex items-center gap-1">
-              <UserIcon className="h-3 w-3" />
-              <span>{idea.creator?.name || 'Usuario'}</span>
-            </div>
-            <Badge variant="outline" className="text-[10px] uppercase">{idea.status}</Badge>
-          </div>
-        </div>
+  const agentsDone = idea.analyses?.length || 0;
+  const totalAgents = 5;
 
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={handleSynthesize}>
-            <Volume2 className="mr-2 h-4 w-4" />
-            Escuchar Resumen
+  return (
+    <div className="main">
+      {/* Topbar */}
+      <div className="topbar">
+        <div className="search">
+          <Search className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+          <input placeholder="Buscar ideas, sectores, hipótesis…" />
+          <span className="kbd">⌘K</span>
+        </div>
+        <div className="topbar-actions flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="h-9 w-9 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+            <Bell className="h-[15px] w-[15px]" />
           </Button>
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Exportar
+          <Button variant="secondary" className="h-9 px-4 gap-2 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)]" onClick={handleRunAllAgents} disabled={isAnalyzingAll}>
+            {isAnalyzingAll ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-[13px] w-[13px]" />}
+            Analizar todo
           </Button>
-          <Button size="sm" onClick={handleRunAllAgents} disabled={isAnalyzingAll}>
-            {isAnalyzingAll ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Play className="mr-2 h-4 w-4" />
-            )}
-            Analizar Todo
-          </Button>
+          <Link href="/ideas/new">
+            <Button className="h-9 px-4 gap-2 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold">
+              <Plus className="h-[14px] w-[14px]" strokeWidth={2.4} />
+              Nueva idea
+            </Button>
+          </Link>
         </div>
       </div>
 
-      <Separator />
+      <div className="crumbs flex items-center gap-2 text-[12px] text-[var(--text-muted)] mb-8">
+        <Link href="/dashboard" className="hover:text-[var(--text-primary)] transition-colors">Panel</Link>
+        <span className="sep text-[var(--border-strong)]">/</span>
+        <Link href="/dashboard" className="hover:text-[var(--text-primary)] transition-colors">Ideas</Link>
+        <span className="sep text-[var(--border-strong)]">/</span>
+        <span className="text-[var(--text-primary)] font-medium">{idea.title}</span>
+      </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="space-y-8 lg:col-span-1">
-          <Card className="bg-muted/30">
-            <CardHeader>
-              <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Puntuación Global</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <IdeaScoreRings 
-                compositeScore={idea.compositeScore}
-                confidenceScore={idea.confidenceScore}
-                volatilityScore={idea.volatilityScore}
-              />
-            </CardContent>
-          </Card>
+      {/* Header */}
+      <div className="detail-header flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
+        <div className="flex-1">
+          <div className="detail-title-row flex items-center gap-4 mb-3 flex-wrap">
+            <h1 className="detail-title text-[48px] font-extrabold font-display leading-[0.95] tracking-tight text-[var(--text-primary)]">
+              {idea.title}
+            </h1>
+            <span 
+              className="priority-badge h-fit px-3 py-1 rounded-[7px] text-[12px] font-mono font-bold uppercase tracking-wider" 
+              style={{ background: scoreBg(idea.compositeScore, 14), color: scoreColor(idea.compositeScore) }}
+            >
+              <span className="pulse h-1.5 w-1.5 rounded-full bg-current mr-2 inline-block animate-pulse" />
+              {scoreLabel(idea.compositeScore)}
+            </span>
+          </div>
 
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold">Detalles de la Idea</h2>
-            <div className="space-y-4 rounded-xl border p-6 bg-card">
-              <EditableField 
-                label="Título" 
-                fieldName="title" 
-                value={idea.title} 
-                onSave={(v: string) => handleSaveField('title', v)} 
+          <div className="detail-tags flex flex-wrap items-center gap-1.5 mb-5">
+            <span className="tag flex items-center gap-2 px-2.5 py-1 rounded-[7px] bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[11.5px] font-medium text-[var(--text-secondary)]">
+              <span className="tag-dot h-1.5 w-1.5 rounded-full bg-[var(--purple)]" />
+              {idea.sector || 'Sin sector'}
+            </span>
+            <span className="tag flex items-center gap-2 px-2.5 py-1 rounded-[7px] bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[11.5px] font-medium text-[var(--text-secondary)]">
+              <span className="tag-dot h-1.5 w-1.5 rounded-full bg-[var(--blue)]" />
+              {idea.businessModel || 'Sin modelo'}
+            </span>
+            <span className="tag flex items-center gap-2 px-2.5 py-1 rounded-[7px] bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[11.5px] font-medium text-[var(--text-secondary)]">
+              <span className="tag-dot h-1.5 w-1.5 rounded-full bg-[var(--green)]" />
+              {idea.targetMarket || 'Sin mercado'}
+            </span>
+            <span className="tag flex items-center gap-2 px-2.5 py-1 rounded-[7px] bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[11.5px] font-medium text-[var(--text-muted)]">
+              v{idea.analyses?.length || 0} · {agentsDone}/{totalAgents} agentes
+            </span>
+          </div>
+
+          <div className="detail-meta flex flex-wrap gap-4 text-[12px] text-[var(--text-muted)] font-mono uppercase tracking-wider mb-8">
+            <span className="detail-meta-item">📅 Creado {new Date(idea.createdAt).toLocaleDateString()}</span>
+            <span className="detail-meta-item">🔄 Re-analizado hace unos momentos</span>
+            <span className="detail-meta-item">👤 {idea.creator?.name || 'Usuario'}</span>
+          </div>
+
+          <div className="detail-actions flex flex-wrap gap-2.5">
+            <Button className="h-10 px-5 gap-2.5 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold text-[13.5px]" onClick={handleRunAllAgents} disabled={isAnalyzingAll}>
+              {isAnalyzingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              Analizar todo
+            </Button>
+            <Button variant="secondary" className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)] font-medium">
+              <Volume2 className="h-4 w-4" />
+              Escuchar resumen
+            </Button>
+            <Button variant="secondary" className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)] font-medium">
+              <FileText className="h-4 w-4" />
+              Exportar
+            </Button>
+          </div>
+        </div>
+
+        {/* Score panel */}
+        <div className="score-panel flex flex-col items-center gap-6 p-8 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[24px] lg:w-[320px]">
+          <ScoreRing value={idea.compositeScore} size={110} stroke={8} />
+          <div className="score-panel-meta w-full">
+            <div className="score-meta-label text-center text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-[0.2em] mb-4">Score compuesto</div>
+            <div className="kpi-row space-y-3">
+              <div className="flex flex-col gap-1.5">
+                <div className="kpi-head flex justify-between items-center text-[12px] font-medium">
+                  <span className="name text-[var(--text-secondary)]">Confianza</span>
+                  <span className="val font-mono text-[var(--text-primary)] tracking-tighter">{((idea.confidenceScore || 0) * 100).toFixed(0)}%</span>
+                </div>
+                <div className="bar h-1 w-full bg-[var(--bg-elev)] rounded-full overflow-hidden">
+                  <div className="bar-fill h-full bg-[var(--green)] transition-all" style={{ width: `${(idea.confidenceScore || 0) * 100}%` }} />
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <div className="kpi-head flex justify-between items-center text-[12px] font-medium">
+                  <span className="name text-[var(--text-secondary)]">Volatilidad</span>
+                  <span className="val font-mono text-[var(--text-primary)] tracking-tighter">{((idea.volatilityScore || 0) * 100).toFixed(0)}%</span>
+                </div>
+                <div className="bar h-1 w-full bg-[var(--bg-elev)] rounded-full overflow-hidden">
+                  <div className="bar-fill h-full bg-[var(--orange)] transition-all" style={{ width: `${(idea.volatilityScore || 0) * 100}%` }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Two-column body */}
+      <div className="detail-grid grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-12">
+        <div className="space-y-16">
+          <div className="agents-section">
+            <h2 className="section-title-lg flex items-center gap-3 text-[18px] font-bold font-display text-[var(--text-primary)] mb-8">
+              Análisis por agente
+              <span className="sub font-normal text-[13px] text-[var(--text-muted)] font-sans">{agentsDone} / {totalAgents} completos</span>
+            </h2>
+            <div className="agents-grid grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ContextAgentCard 
+                summary={contextAnswers?.summary || 'Haz clic para resumir el contexto inicial.'}
+                isAnalyzing={isSummarizing}
+                onAnalyze={handleSummarize}
               />
+              {analysisAgents.map((agentType) => (
+                <AgentAnalysisCard 
+                  key={agentType}
+                  agentType={agentType}
+                  analysis={idea.analyses.find((a: Analysis) => a.agentType === agentType)}
+                  isAnalyzing={analyzingAgents.has(agentType)}
+                  onAnalyze={() => handleRunAgent(agentType)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <HypothesisList hypotheses={idea.hypotheses} />
+        </div>
+
+        {/* Side panel */}
+        <aside className="side-panel flex flex-col gap-6">
+          <div className="side-card p-6 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[18px]">
+            <h3 className="text-[14px] font-bold font-display flex items-center gap-2 mb-6">
+              Brief editable 
+              <span className="pill px-2 py-0.5 rounded-[5px] bg-[rgba(198,255,61,0.08)] text-[9px] font-mono text-[var(--green)] uppercase tracking-wider">auto-save</span>
+            </h3>
+            <div className="space-y-6">
               <EditableField 
                 label="Descripción" 
                 fieldName="description" 
@@ -183,64 +266,89 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
                 type="textarea"
                 onSave={(v: string) => handleSaveField('description', v)} 
               />
-              <div className="grid gap-4 sm:grid-cols-2">
-                <EditableField 
-                  label="Sector" 
-                  fieldName="sector" 
-                  value={idea.sector || ''} 
-                  onSave={(v: string) => handleSaveField('sector', v)} 
-                />
-                <EditableField 
-                  label="Modelo de Negocio" 
-                  fieldName="businessModel" 
-                  value={idea.businessModel || ''} 
-                  onSave={(v: string) => handleSaveField('businessModel', v)} 
-                />
-              </div>
               <EditableField 
-                label="Mercado Objetivo" 
+                label="Sector" 
+                fieldName="sector" 
+                value={idea.sector || ''} 
+                onSave={(v: string) => handleSaveField('sector', v)} 
+              />
+              <EditableField 
+                label="Mercado objetivo" 
                 fieldName="targetMarket" 
                 value={idea.targetMarket || ''} 
                 onSave={(v: string) => handleSaveField('targetMarket', v)} 
               />
               <EditableField 
-                label="Notas Adicionales" 
+                label="Modelo de negocio" 
+                fieldName="businessModel" 
+                value={idea.businessModel || ''} 
+                onSave={(v: string) => handleSaveField('businessModel', v)} 
+              />
+              <EditableField 
+                label="Notas del fundador" 
                 fieldName="notes" 
                 value={idea.notes || ''} 
                 type="textarea"
                 onSave={(v: string) => handleSaveField('notes', v)} 
               />
+              <Button 
+                className="w-full h-10 gap-2 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold mt-2"
+                onClick={handleRunAllAgents}
+                disabled={isAnalyzingAll}
+              >
+                {isAnalyzingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                Guardar y re-analizar
+              </Button>
             </div>
           </div>
 
-          <HypothesisList hypotheses={idea.hypotheses} />
-        </div>
-
-        <div className="space-y-6 lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">Análisis de Agentes</h2>
-            <div className="text-xs text-muted-foreground">
-              {isAnalyzingAll ? 'Ejecutando análisis completo...' : 'Haz clic en re-analizar para refrescar agentes específicos'}
+          <div className="side-card p-6 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[18px]">
+            <h3 className="text-[14px] font-bold font-display flex items-center justify-between mb-6">
+              Próximas acciones 
+              <span className="pill px-2 py-0.5 rounded-[5px] bg-[var(--bg-elev)] border border-[var(--border-subtle)] text-[9px] font-mono text-[var(--text-muted)] uppercase tracking-wider">
+                {idea.analyses?.filter(a => a.nextValidationAction).length || 0}
+              </span>
+            </h3>
+            <div className="flex flex-col gap-5">
+              {idea.analyses?.filter(a => a.nextValidationAction).slice(0, 4).map((analysis, i) => {
+                const color = scoreColor(analysis.score);
+                return (
+                  <div key={analysis.id} className="flex gap-3 items-start">
+                    <span className="h-1.5 w-1.5 rounded-full mt-1.5 shrink-0" style={{ background: color }} />
+                    <div className="flex-1">
+                      <div className="font-mono text-[9.5px] uppercase tracking-[0.08em] mb-1" style={{ color }}>{analysis.agentType}</div>
+                      <div className="text-[12.5px] leading-relaxed text-[var(--text-primary)]">{analysis.nextValidationAction}</div>
+                    </div>
+                  </div>
+                );
+              })}
+              {idea.analyses?.filter(a => !a.nextValidationAction).length === totalAgents && (
+                <p className="text-[12.5px] text-[var(--text-muted)] italic">No hay acciones pendientes.</p>
+              )}
             </div>
           </div>
-          
-          <div className="grid gap-6 md:grid-cols-2">
-            <ContextAgentCard 
-              summary={contextAnswers?.summary || 'Haz clic para resumir el contexto inicial.'}
-              isAnalyzing={isSummarizing}
-              onAnalyze={handleSummarize}
-            />
-            {analysisAgents.map((agentType) => (
-              <AgentAnalysisCard 
-                key={agentType}
-                agentType={agentType}
-                analysis={idea.analyses.find((a: Analysis) => a.agentType === agentType)}
-                isAnalyzing={analyzingAgents.has(agentType)}
-                onAnalyze={() => handleRunAgent(agentType)}
-              />
-            ))}
+
+          <div className="side-card p-6 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[18px]">
+            <h3 className="text-[14px] font-bold font-display mb-6">Score por agente</h3>
+            <div className="flex flex-col gap-5">
+              {analysisAgents.map((agentType) => {
+                const analysis = idea.analyses.find(a => a.agentType === agentType);
+                const color = scoreColor(analysis?.score || null);
+                return (
+                  <div key={agentType}>
+                    <div className="flex justify-between items-center text-[12px] mb-2">
+                      <span className="text-[var(--text-secondary)] capitalize">{agentType.replace('_', ' ')}</span>
+                      <span className="font-mono font-bold text-[var(--text-primary)]">{analysis?.score.toFixed(1) || '-'}</span>
+                    </div>
+                    <div className="bar h-1 w-full bg-[var(--bg-elev)] rounded-full overflow-hidden">
+                      <div className="bar-fill h-full transition-all" style={{ width: `${(analysis?.score || 0) * 10}%`, background: color }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
 'use client';
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, RefreshCw, Play, CheckCircle2, AlertTriangle, TrendingUp, Search, LucideIcon } from 'lucide-react';
+import { Loader2, Sparkles, Check, ChevronRight } from 'lucide-react';
 import { Analysis, AgentType } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { ScoreRing } from '@/components/ui/score-ring';
 
 interface AgentAnalysisCardProps {
   agentType: AgentType;
@@ -13,102 +14,160 @@ interface AgentAnalysisCardProps {
   onAnalyze: () => void;
 }
 
+const AGENT_METADATA: Record<AgentType, { name: string, short: string, role: string, color: string }> = {
+  market: { 
+    name: 'Market Intelligence', 
+    short: 'MKT', 
+    role: 'Analista de mercado y tendencias', 
+    color: 'var(--accent-pri)' 
+  },
+  competition: { 
+    name: 'Competitive Strategy', 
+    short: 'COMP', 
+    role: 'Estratega de competición', 
+    color: 'var(--orange)' 
+  },
+  economics: { 
+    name: 'Unit Economics', 
+    short: 'ECON', 
+    role: 'Modelador financiero', 
+    color: 'var(--yellow)' 
+  },
+  gtm: { 
+    name: 'Go-To-Market', 
+    short: 'GTM', 
+    role: 'Especialista en crecimiento', 
+    color: 'var(--purple)' 
+  },
+  founder_fit: { 
+    name: 'Founder Fit', 
+    short: 'FIT', 
+    role: 'Psicólogo de producto', 
+    color: 'var(--blue)' 
+  },
+};
+
 export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze }: AgentAnalysisCardProps) {
-  const agentLabels: Record<AgentType, string> = {
-    market: 'Market Analysis',
-    competition: 'Competition',
-    economics: 'Economics',
-    gtm: 'Go-To-Market',
-    founder_fit: 'Founder Fit',
-  };
+  const metadata = AGENT_METADATA[agentType];
+  const isLoading = isAnalyzing;
+  const isEmpty = !analysis && !isLoading;
+  const accent = metadata.color;
 
-  const agentIcons: Record<AgentType, LucideIcon> = {
-    market: TrendingUp,
-    competition: Search,
-    economics: TrendingUp, // Placeholder
-    gtm: Play, // Placeholder
-    founder_fit: CheckCircle2, // Placeholder
-  };
-
-  const Icon = agentIcons[agentType] || TrendingUp;
+  if (isEmpty) {
+    return (
+      <article className="agent-card empty-agent group" style={{ '--accent': accent } as React.CSSProperties}>
+        <div className="accent-bar" />
+        <div className="agent-empty-icon flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--bg-elev)] border border-[var(--border-subtle)] text-[var(--text-muted)] group-hover:text-[var(--accent-pri)] transition-colors">
+          <Sparkles className="h-4 w-4" />
+        </div>
+        <div className="agent-tag flex items-center gap-2 mt-4 mb-1">
+          <span className="agent-dot h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+          <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)]">{metadata.short}</span>
+        </div>
+        <div className="agent-name font-display font-bold text-[16px] text-[var(--text-primary)] mb-2">{metadata.name}</div>
+        <p className="text-[12.5px] text-[var(--text-muted)] leading-relaxed max-w-[240px] mb-4">
+          Este agente aún no ha analizado la idea. Ejecuta el análisis para obtener insights competitivos.
+        </p>
+        <Button 
+          variant="secondary" 
+          onClick={onAnalyze}
+          className="h-8 gap-2 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]"
+        >
+          <Sparkles className="h-3 w-3" />
+          Analizar ahora
+        </Button>
+      </article>
+    );
+  }
 
   return (
-    <Card className={cn('overflow-hidden border-t-4', {
-      'border-t-green-500': (analysis?.score || 0) >= 7.5,
-      'border-t-yellow-500': (analysis?.score || 0) >= 6.5 && (analysis?.score || 0) < 7.5,
-      'border-t-orange-500': (analysis?.score || 0) >= 5.0 && (analysis?.score || 0) < 6.5,
-      'border-t-red-500': (analysis?.score || 0) < 5.0 && analysis,
-      'border-t-muted': !analysis,
-    })}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div className="flex items-center gap-2">
-          <div className="rounded-full bg-primary/10 p-2 text-primary">
-            <Icon className="h-4 w-4" />
+    <article className={cn("agent-card relative", isLoading && "loading")} style={{ '--accent': accent } as React.CSSProperties}>
+      <div className="accent-bar" />
+      {isLoading && <div className="top-bar absolute top-0 left-0 right-0 h-0.5 bg-[var(--accent)] animate-pulse" />}
+
+      <div className="agent-head flex justify-between items-start mb-4">
+        <div className="agent-meta">
+          <div className="agent-tag flex items-center gap-2 mb-1">
+            <span className="agent-dot h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+            <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)]">{metadata.short}</span>
           </div>
-          <CardTitle className="text-sm font-bold">{agentLabels[agentType]}</CardTitle>
+          <div className="agent-name font-display font-bold text-[18px] text-[var(--text-primary)] leading-none mb-1">{metadata.name}</div>
+          <div className="agent-role text-[11px] font-medium text-[var(--text-muted)] uppercase tracking-wide">{metadata.role}</div>
         </div>
         {analysis && (
-          <div className="text-xl font-bold">{analysis.score.toFixed(1)}</div>
+          <ScoreRing value={analysis.score} size={48} stroke={3.5} showMax={false} />
         )}
-      </CardHeader>
-      <CardContent className="pt-4">
-        {analysis ? (
-          <div className="space-y-4">
-            <p className="text-sm font-semibold leading-tight">{analysis.headline}</p>
-            
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Strengths</p>
-                <ul className="space-y-1">
-                  {analysis.strengths.slice(0, 3).map((s: string, i: number) => (
-                    <li key={i} className="flex items-start gap-2 text-xs">
-                      <CheckCircle2 className="h-3 w-3 shrink-0 text-green-500" />
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Risks</p>
-                <ul className="space-y-1">
-                  {analysis.risks.slice(0, 3).map((r: string, i: number) => (
-                    <li key={i} className="flex items-start gap-2 text-xs">
-                      <AlertTriangle className="h-3 w-3 shrink-0 text-amber-500" />
-                      <span>{r}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+      </div>
 
-            <div className="space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Next Action</p>
-              <p className="text-xs italic text-primary">{analysis.nextValidationAction}</p>
+      <p className="agent-headline text-[13.5px] font-bold text-[var(--text-primary)] leading-snug mb-5">
+        {isLoading ? "Analizando propuesta de valor..." : analysis?.headline}
+      </p>
+
+      {!isLoading && analysis && (
+        <div className="flex flex-col gap-5">
+          {analysis.strengths?.length > 0 && (
+            <div className="agent-list flex flex-col gap-2">
+              <div className="agent-list-title font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--text-muted)]">Fortalezas</div>
+              <div className="flex flex-col gap-1.5">
+                {analysis.strengths.slice(0, 3).map((s, i) => (
+                  <div key={i} className="agent-li check flex items-start gap-2 text-[12.5px] text-[var(--text-secondary)]">
+                    <span className="marker mt-1 flex-shrink-0">
+                      <Check className="h-3 w-3 text-[var(--green)]" strokeWidth={3} />
+                    </span>
+                    <span>{s}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex h-32 flex-col items-center justify-center space-y-2 text-muted-foreground">
-            <p className="text-xs">No analysis yet</p>
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="bg-muted/30 border-t py-3">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="ml-auto h-8 text-xs gap-2" 
-          onClick={onAnalyze}
-          disabled={isAnalyzing}
-        >
-          {isAnalyzing ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
-          ) : (
-            <RefreshCw className="h-3 w-3" />
           )}
-          {analysis ? 'Re-analyze' : 'Analyze'}
+
+          {analysis.risks?.length > 0 && (
+            <div className="agent-list flex flex-col gap-2">
+              <div className="agent-list-title font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--text-muted)]">Riesgos</div>
+              <div className="flex flex-col gap-1.5">
+                {analysis.risks.slice(0, 3).map((r, i) => (
+                  <div key={i} className="agent-li flex items-start gap-2 text-[12.5px] text-[var(--orange)]">
+                    <span className="marker h-1 w-1 rounded-full bg-[var(--orange)] mt-2 flex-shrink-0" />
+                    <span className="text-[var(--text-secondary)]">{r}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {analysis.recommendation && (
+            <div className="agent-rec p-3 rounded-[10px] bg-[var(--bg-elev)] border border-[var(--border-subtle)]">
+              <div className="agent-rec-label font-mono text-[9px] uppercase tracking-wider text-[var(--text-muted)] mb-1">Recomendación</div>
+              <div className="agent-rec-text text-[12px] leading-relaxed text-[var(--text-primary)]">{analysis.recommendation}</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="flex flex-col gap-4">
+          <div className="h-20 w-full bg-[var(--bg-elev)] rounded-[10px] animate-pulse" />
+          <div className="h-12 w-full bg-[var(--bg-elev)] rounded-[10px] animate-pulse" />
+        </div>
+      )}
+
+      <div className="agent-actions flex items-center justify-between gap-4 mt-auto pt-5 border-t border-[var(--border-subtle)]">
+        <Button 
+          variant="secondary" 
+          onClick={onAnalyze}
+          disabled={isLoading}
+          className="h-8 gap-2 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]"
+        >
+          {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+          Re-analizar
         </Button>
-      </CardFooter>
-    </Card>
+        {analysis?.nextValidationAction && !isLoading && (
+          <span className="text-[11px] text-[var(--text-muted)] truncate max-w-[150px]" title={analysis.nextValidationAction}>
+            Next: {analysis.nextValidationAction}
+          </span>
+        )}
+      </div>
+    </article>
   );
 }
 
@@ -120,40 +179,40 @@ interface ContextAgentCardProps {
 
 export function ContextAgentCard({ summary, isAnalyzing, onAnalyze }: ContextAgentCardProps) {
   return (
-    <Card className="border-t-4 border-t-indigo-500">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div className="flex items-center gap-2">
-          <div className="rounded-full bg-indigo-500/10 p-2 text-indigo-500">
-            <Search className="h-4 w-4" />
+    <article className={cn("agent-card relative", isAnalyzing && "loading")} style={{ '--accent': 'var(--purple)' } as React.CSSProperties}>
+      <div className="accent-bar" />
+      <div className="agent-head flex justify-between items-start mb-4">
+        <div className="agent-meta">
+          <div className="agent-tag flex items-center gap-2 mb-1">
+            <span className="agent-dot h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+            <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)]">CTX</span>
           </div>
-          <CardTitle className="text-sm font-bold">Context Agent</CardTitle>
+          <div className="agent-name font-display font-bold text-[18px] text-[var(--text-primary)] leading-none mb-1">Context Summary</div>
+          <div className="agent-role text-[11px] font-medium text-[var(--text-muted)] uppercase tracking-wide">Sintetizador de contexto</div>
         </div>
-      </CardHeader>
-      <CardContent className="pt-4">
+      </div>
+
+      <div className="flex flex-col gap-4">
         {summary ? (
-          <p className="text-sm line-clamp-4">{summary}</p>
+          <p className="text-[13.5px] text-[var(--text-secondary)] leading-relaxed line-clamp-6">{summary}</p>
         ) : (
-          <div className="flex h-32 flex-col items-center justify-center space-y-2 text-muted-foreground">
-            <p className="text-xs">Initial context not yet summarized</p>
+          <div className="flex h-32 flex-col items-center justify-center space-y-2 text-muted-foreground bg-[var(--bg-elev)] rounded-[10px] border border-dashed border-[var(--border-subtle)]">
+            <p className="text-xs">Context not yet summarized</p>
           </div>
         )}
-      </CardContent>
-      <CardFooter className="bg-muted/30 border-t py-3">
+      </div>
+
+      <div className="agent-actions flex items-center justify-end gap-4 mt-auto pt-5 border-t border-[var(--border-subtle)]">
         <Button 
-          variant="ghost" 
-          size="sm" 
-          className="ml-auto h-8 text-xs gap-2" 
+          variant="secondary" 
           onClick={onAnalyze}
           disabled={isAnalyzing}
+          className="h-8 gap-2 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]"
         >
-          {isAnalyzing ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
-          ) : (
-            <RefreshCw className="h-3 w-3" />
-          )}
+          {isAnalyzing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
           Summarize
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </article>
   );
 }

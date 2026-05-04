@@ -1,12 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Check, X, Pencil, Loader2 } from 'lucide-react';
+import { Check, X, Sparkles, Loader2 } from 'lucide-react';
 import { IdeaField } from '@/lib/types';
 import { getAffectedAgents } from '@/lib/scoring';
 import { cn } from '@/lib/utils';
@@ -49,64 +45,54 @@ export function EditableField({ label, fieldName, value, onSave, type = 'input' 
   };
 
   return (
-    <div className="group space-y-2">
-      <div className="flex items-center justify-between">
-        <Label className="text-sm font-bold text-muted-foreground uppercase tracking-tight">{label}</Label>
-        {!isEditing && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity" 
-            onClick={() => setIsEditing(true)}
-          >
-            <Pencil className="h-3 w-3" />
-          </Button>
-        )}
-      </div>
+    <div className="field group">
+      <label className="field-label block font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--text-muted)] mb-2">
+        {label}
+      </label>
 
       {isEditing ? (
         <div className="space-y-3">
           {type === 'input' ? (
-            <Input 
+            <input 
+              className="field-input w-full bg-[var(--bg-elev)] border border-[var(--border-subtle)] rounded-[9px] px-3.5 py-2.5 text-[13.5px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-pri)] focus:ring-4 focus:ring-[rgba(198,255,61,0.08)] transition-all"
               value={currentValue} 
               onChange={(e) => setCurrentValue(e.target.value)}
               autoFocus
             />
           ) : (
-            <Textarea 
+            <textarea 
+              className="field-textarea w-full bg-[var(--bg-elev)] border border-[var(--border-subtle)] rounded-[9px] px-3.5 py-2.5 text-[13.5px] text-[var(--text-primary)] outline-none focus:border-[var(--accent-pri)] focus:ring-4 focus:ring-[rgba(198,255,61,0.08)] transition-all min-h-[100px] resize-none"
               value={currentValue} 
               onChange={(e) => setCurrentValue(e.target.value)}
-              className="min-h-[100px]"
               autoFocus
             />
           )}
           
           <div className="flex items-center justify-between">
-            <div className="flex flex-wrap gap-1">
-              {affectedAgents.map((agent) => (
-                <Badge key={agent} variant="outline" className="text-[9px] py-0 border-amber-500/50 text-amber-600 bg-amber-50/50 dark:bg-amber-950/30">
-                  Refreshes {agent}
-                </Badge>
-              ))}
-            </div>
             <div className="flex gap-2">
-              <Button variant="ghost" size="sm" onClick={handleCancel} disabled={isSaving}>
-                <X className="h-4 w-4" />
-              </Button>
-              <Button size="sm" onClick={handleSave} disabled={isSaving}>
+              <Button size="sm" className="h-8 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)]" onClick={handleSave} disabled={isSaving}>
                 {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 text-[var(--text-muted)] hover:text-[var(--text-primary)]" onClick={handleCancel} disabled={isSaving}>
+                <X className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </div>
       ) : (
         <div 
-          className="rounded-md border border-transparent p-2 hover:border-border hover:bg-muted/30 cursor-pointer transition-colors"
+          className="relative rounded-[9px] border border-transparent p-2.5 hover:border-[var(--border-subtle)] hover:bg-[var(--bg-elev)] cursor-pointer transition-all -ml-2.5 w-[calc(100%_+_20px)]"
           onClick={() => setIsEditing(true)}
         >
-          <p className={cn("text-sm whitespace-pre-wrap", !value && "text-muted-foreground italic")}>
+          <p className={cn("text-[13.5px] leading-relaxed text-[var(--text-primary)] whitespace-pre-wrap", !value && "text-[var(--text-muted)] italic")}>
             {value || 'Not provided'}
           </p>
+          {affectedAgents.length > 0 && (
+            <div className="field-affects flex items-center gap-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-[var(--orange)] mt-2 opacity-80">
+              <Sparkles className="h-2.5 w-2.5" />
+              <span>Actualiza: {affectedAgents.join(' · ')}</span>
+            </div>
+          )}
         </div>
       )}
     </div>
