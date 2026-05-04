@@ -4,10 +4,10 @@ import * as React from 'react';
 import { Link } from '@/navigation';
 import { cn } from '@/lib/utils';
 import { ScoreRing, scoreColor, scoreLabel, scoreBg } from '@/components/ui/score-ring';
-import { Idea } from '@/lib/types';
+import { IdeaWithAnalyses } from '@/lib/types';
 
 interface IdeaCardProps {
-  idea: Idea;
+  idea: IdeaWithAnalyses;
   delay?: number;
 }
 
