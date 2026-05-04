@@ -29,10 +29,6 @@ const config = {
   			ring: 'hsl(var(--ring))',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
-  			accent: {
-  				DEFAULT: 'var(--color-accent)',
-  				foreground: 'hsl(var(--accent-foreground))'
-  			},
   			'accent-pri': 'var(--accent-pri)',
   			'bg-base': 'var(--bg-base)',
   			'bg-card': 'var(--bg-card)',
