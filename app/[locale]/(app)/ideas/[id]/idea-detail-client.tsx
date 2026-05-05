@@ -120,6 +120,15 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
       return;
     }
 
+    // Workaround para iOS/Safari: desbloquear el elemento de audio sincrónicamente
+    if (audioRef.current) {
+      // Un src vacío o un play vacío en el call stack del onClick desbloquea el elemento
+      const p = audioRef.current.play();
+      if (p !== undefined) {
+        p.catch(() => {}); // ignoramos el error de que no hay src todavía
+      }
+    }
+
     setIsSynthesizing(true);
     try {
       const agentNames: Record<AgentType, string> = {
