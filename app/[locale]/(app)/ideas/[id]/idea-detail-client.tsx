@@ -32,6 +32,8 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const [isAnalyzingAll, setIsAnalyzingAll] = React.useState(false);
   const [analyzingAgents, setAnalyzingAgents] = React.useState<Set<AgentType>>(new Set());
   const [isSummarizing, setIsSummarizing] = React.useState(false);
+  const [isSynthesizing, setIsSynthesizing] = React.useState(false);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const handleSaveField = async (fieldName: IdeaField, value: string) => {
     try {
@@ -97,35 +99,55 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
     }
   };
 
-  const handleListenSummary = () => {
-    if (!window.speechSynthesis) {
-      toast.error('Tu navegador no soporta la síntesis de voz.');
-      return;
-    }
+  const handleListenSummary = async () => {
     const analyses = idea.analyses ?? [];
     if (analyses.length === 0) {
       toast.error('No hay análisis generados todavía.');
       return;
     }
-    window.speechSynthesis.cancel();
-    const agentNames: Record<AgentType, string> = {
-      market: 'Mercado',
-      competition: 'Competencia',
-      economics: 'Economía unitaria',
-      gtm: 'Go-to-market',
-      founder_fit: 'Fit con el fundador',
-    };
-    const parts = analyses.map((a: Analysis) => {
-      const name = agentNames[a.agentType as AgentType] ?? a.agentType;
-      const strengths = a.strengths?.slice(0, 2).join('. ') ?? '';
-      const risks = a.risks?.slice(0, 1).join('. ') ?? '';
-      return `${name}: puntuación ${a.score.toFixed(1)}. ${a.headline}. Fortalezas: ${strengths}. Riesgo principal: ${risks}.`;
-    });
-    const textToSpeak = `Análisis de ${idea.title}. ${parts.join(' ')}`;
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utterance.lang = 'es-ES';
-    window.speechSynthesis.speak(utterance);
-    toast.info('Reproduciendo análisis...');
+
+    setIsSynthesizing(true);
+    try {
+      const agentNames: Record<AgentType, string> = {
+        market: 'Mercado',
+        competition: 'Competencia',
+        economics: 'Economía unitaria',
+        gtm: 'Go-to-market',
+        founder_fit: 'Fit con el fundador',
+      };
+      
+      const parts = analyses.map((a: Analysis) => {
+        const name = agentNames[a.agentType as AgentType] ?? a.agentType;
+        const strengths = a.strengths?.slice(0, 2).join('. ') ?? '';
+        const risks = a.risks?.slice(0, 1).join('. ') ?? '';
+        return `${name}: puntuación ${a.score.toFixed(1)}. ${a.headline}. Fortalezas: ${strengths}. Riesgo principal: ${risks}.`;
+      });
+      
+      const textToSpeak = `Análisis de ${idea.title}. ${parts.join(' ')}`;
+
+      const response = await fetch('/api/audio/synthesize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: textToSpeak, idea_id: idea.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al sintetizar audio');
+      }
+
+      const { audio_url } = await response.json();
+      
+      if (audioRef.current) {
+        audioRef.current.src = audio_url;
+        audioRef.current.play();
+        toast.info('Reproduciendo análisis...');
+      }
+    } catch (error) {
+      console.error('Error in handleListenSummary:', error);
+      toast.error('Error al generar el audio del resumen');
+    } finally {
+      setIsSynthesizing(false);
+    }
   };
 
   const analysisAgents: AgentType[] = ['market', 'competition', 'economics', 'gtm', 'founder_fit'];
@@ -136,6 +158,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
 
   return (
     <div className="main">
+      <audio ref={audioRef} hidden />
       {/* Topbar */}
       <div className="topbar">
         <div className="search">
@@ -217,8 +240,9 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               variant="secondary" 
               className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)] font-medium"
               onClick={handleListenSummary}
+              disabled={isSynthesizing}
             >
-              <Volume2 className="h-4 w-4" />
+              {isSynthesizing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
               Escuchar resumen
             </Button>
             <Button variant="secondary" className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)] font-medium">
