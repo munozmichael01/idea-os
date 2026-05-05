@@ -14,7 +14,8 @@ import {
   Bell,
   Plus,
   ArrowRight,
-  FileText
+  FileText,
+  Square
 } from 'lucide-react';
 import { Link } from '@/navigation';
 import { toast } from 'sonner';
@@ -34,6 +35,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const [analyzingAgents, setAnalyzingAgents] = React.useState<Set<AgentType>>(new Set());
   const [isSummarizing, setIsSummarizing] = React.useState(false);
   const [isSynthesizing, setIsSynthesizing] = React.useState(false);
+  const [isPlaying, setIsPlaying] = React.useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   React.useEffect(() => {
@@ -105,6 +107,13 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   };
 
   const handleListenSummary = async () => {
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      return;
+    }
+
     const analyses = idea.analyses ?? [];
     if (analyses.length === 0) {
       toast.error('No hay análisis generados todavía.');
@@ -166,7 +175,13 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
 
   return (
     <div className="main">
-      <audio ref={audioRef} hidden />
+      <audio 
+        ref={audioRef} 
+        hidden 
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => setIsPlaying(false)}
+      />
       {/* Topbar */}
       <div className="topbar">
         <div className="search">
@@ -250,8 +265,8 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               onClick={handleListenSummary}
               disabled={isSynthesizing}
             >
-              {isSynthesizing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
-              Escuchar resumen
+              {isSynthesizing ? <Loader2 className="h-4 w-4 animate-spin" /> : (isPlaying ? <Square className="h-4 w-4 text-[var(--red)]" /> : <Volume2 className="h-4 w-4" />)}
+              {isPlaying ? 'Detener resumen' : 'Escuchar resumen'}
             </Button>
             <Button variant="secondary" className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)] font-medium">
               <FileText className="h-4 w-4" />
