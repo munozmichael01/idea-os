@@ -91,8 +91,8 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-[var(--border-subtle)] bg-[var(--bg-base)]">
       <SidebarHeader className="p-0">
-        <div className="brand" style={{ position: 'relative' }}>
-          <div className="brand-mark" aria-label="IdeaOS">
+        <div className="relative flex items-center gap-3 px-4 py-6 border-b border-[var(--border-subtle)] mb-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] flex-shrink-0 transition-transform hover:-rotate-6">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18h6"/>
               <path d="M10 21h4"/>
@@ -102,7 +102,9 @@ export function AppSidebar() {
             </svg>
           </div>
           {!isCollapsed && (
-            <div className="brand-name">Idea<span className="accent">OS</span></div>
+            <span className="text-[17px] font-extrabold tracking-tight font-display">
+              Idea<span className="text-[var(--green)]">OS</span>
+            </span>
           )}
           <button 
             onClick={toggleSidebar}
@@ -169,26 +171,55 @@ export function AppSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="sidebar-footer">
+      <SidebarFooter className="p-3 mt-auto border-t border-[var(--border-subtle)] gap-4">
         {!isCollapsed && (
-          <>
-            <div className="theme-toggle">
-              <button className={theme === 'dark' ? 'active' : ''} onClick={() => setTheme('dark')}>
-                <Moon size={13}/> <span>Dark</span>
+          <div className="flex flex-col gap-2">
+            <div className="flex bg-[var(--bg-elev)] border border-[var(--border-subtle)] rounded-[8px] p-1 gap-1">
+              <button 
+                onClick={() => setTheme('dark')}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 py-1.5 rounded-[5px] text-[10px] font-mono uppercase tracking-wider transition-all",
+                  theme === 'dark' ? "bg-[var(--bg-base)] text-[var(--text-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                )}
+              >
+                <Moon className="h-3 w-3" />
+                <span>Dark</span>
               </button>
-              <button className={theme === 'light' ? 'active' : ''} onClick={() => setTheme('light')}>
-                <Sun size={13}/> <span>Light</span>
+              <button 
+                onClick={() => setTheme('light')}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 py-1.5 rounded-[5px] text-[10px] font-mono uppercase tracking-wider transition-all",
+                  theme === 'light' ? "bg-[var(--bg-base)] text-[var(--text-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                )}
+              >
+                <Sun className="h-3 w-3" />
+                <span>Light</span>
               </button>
             </div>
-            <div className="lang-toggle">
-              <Link href={pathname} locale="es" style={{ display: 'flex', flex: 1 }}>
-                <button className={locale === 'es' ? 'active' : ''} style={{ flex: 1, width: '100%' }}>ES</button>
+
+            <div className="flex bg-[var(--bg-elev)] border border-[var(--border-subtle)] rounded-[8px] p-1 gap-1">
+              <Link 
+                href={pathname} 
+                locale="es"
+                className={cn(
+                  "flex-1 flex items-center justify-center py-1.5 rounded-[5px] text-[10px] font-mono uppercase tracking-wider transition-all",
+                  locale === 'es' ? "bg-[var(--bg-base)] text-[var(--text-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                )}
+              >
+                ES
               </Link>
-              <Link href={pathname} locale="en" style={{ display: 'flex', flex: 1 }}>
-                <button className={locale === 'en' ? 'active' : ''} style={{ flex: 1, width: '100%' }}>EN</button>
+              <Link 
+                href={pathname} 
+                locale="en"
+                className={cn(
+                  "flex-1 flex items-center justify-center py-1.5 rounded-[5px] text-[10px] font-mono uppercase tracking-wider transition-all",
+                  locale === 'en' ? "bg-[var(--bg-base)] text-[var(--text-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                )}
+              >
+                EN
               </Link>
             </div>
-          </>
+          </div>
         )}
 
         <div className={cn(

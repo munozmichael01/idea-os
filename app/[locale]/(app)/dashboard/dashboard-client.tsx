@@ -33,7 +33,7 @@ const StatCard = ({ label, value, unit, trend, icon: Icon }: any) => {
   const TrendIcon = trend?.dir === 'up' ? ArrowUp : ArrowDown;
   return (
     <div className="stat">
-      <div className="stat-label">
+      <div className="stat-label flex items-center gap-2">
         <Icon className="h-3 w-3" />
         <span>{label}</span>
       </div>
@@ -42,10 +42,10 @@ const StatCard = ({ label, value, unit, trend, icon: Icon }: any) => {
         {unit && <span className="unit">{unit}</span>}
       </div>
       {trend && (
-        <div className={`stat-trend ${trend.dir}`}>
+        <div className={cn("stat-trend flex items-center gap-1", trend.dir === 'up' ? "text-[var(--green)]" : "text-[var(--orange)]")}>
           <TrendIcon className="h-3 w-3" />
           <span>{trend.value}</span>
-          <span style={{ color: 'var(--text-muted)' }} className="ml-1">· {trend.note}</span>
+          <span className="text-[var(--text-muted)] ml-1">· {trend.note}</span>
         </div>
       )}
     </div>
@@ -99,30 +99,30 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
           <input placeholder="Buscar ideas, sectores, hipótesis…" />
           <span className="kbd">⌘K</span>
         </div>
-        <div className="topbar-actions">
-          <button className="btn btn-ghost btn-icon" title="Notificaciones">
+        <div className="topbar-actions flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="h-9 w-9 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
             <Bell className="h-[15px] w-[15px]" />
-          </button>
-          <button className="btn btn-secondary">
+          </Button>
+          <Button variant="secondary" className="h-9 px-4 gap-2 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)]">
             <Sparkles className="h-[13px] w-[13px]" />
             Analizar todo
-          </button>
+          </Button>
           <Link href="/ideas/new">
-            <button className="btn btn-primary">
+            <Button className="h-9 px-4 gap-2 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold">
               <Plus className="h-[14px] w-[14px]" strokeWidth={2.4} />
               Nueva idea
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
 
       {/* Page header */}
-      <div className="page-header">
+      <div className="page-header mb-8">
         <div>
-          <h1 className="page-title">
+          <h1 className="page-title text-3xl font-bold tracking-tight font-display text-[var(--text-primary)]">
             {commonT('dashboard')}
           </h1>
-          <p className="page-subtitle">
+          <p className="page-subtitle text-[13.5px] text-[var(--text-secondary)] mt-1">
             {isEmpty
               ? 'Empieza capturando tu primera idea.'
               : `${initialIdeas.length} ideas en seguimiento · ${pendingAnalysis} en análisis · última actualización hace un momento.`}
@@ -132,7 +132,7 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
 
       {/* Stats */}
       {!isEmpty && (
-        <div className="stats">
+        <div className="stats grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
           <StatCard
             label="Ideas activas"
             value={initialIdeas.length}
