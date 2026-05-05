@@ -65,7 +65,7 @@ export function ContextQuestionsForm({ questions, onSubmit, onSkip, onBack }: Co
   };
 
   return (
-    <div className="wizard-card w-full max-w-[680px] mx-auto p-10 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[24px]">
+    <div className="wizard-card w-full max-w-[680px] mx-auto p-5 sm:p-10 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[16px] sm:rounded-[24px]">
       <h2 className="wizard-h1 text-[28px] font-bold font-display tracking-tight text-[var(--text-primary)] mb-2">Antes de analizar tu idea…</h2>
       <p className="wizard-sub text-[14.5px] text-[var(--text-secondary)] leading-relaxed mb-8">5 preguntas del agente de contexto. Las respuestas son opcionales pero suben la calidad del análisis ~40%.</p>
 
@@ -106,15 +106,15 @@ export function ContextQuestionsForm({ questions, onSubmit, onSkip, onBack }: Co
         })}
       </div>
 
-      <div className="wizard-actions flex items-center justify-between pt-8 border-t border-[var(--border-subtle)]">
-        <Button variant="ghost" className="h-10 gap-2 text-[var(--text-muted)]" onClick={onBack}>
+      <div className="wizard-actions flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-6 sm:pt-8 border-t border-[var(--border-subtle)]">
+        <Button variant="ghost" className="order-2 sm:order-1 h-10 gap-2 text-[var(--text-muted)]" onClick={onBack}>
           <ChevronLeft className="h-4 w-4" />
           Atrás
         </Button>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 order-1 sm:order-2">
           <Button 
             variant="secondary" 
-            className="h-10 px-5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)]"
+            className="w-full sm:w-auto h-10 px-5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)]"
             onClick={handleSkip}
             disabled={isSubmitting || isSkipping}
           >
@@ -122,7 +122,7 @@ export function ContextQuestionsForm({ questions, onSubmit, onSkip, onBack }: Co
             Saltar y analizar
           </Button>
           <Button 
-            className="h-10 px-6 gap-2 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold"
+            className="w-full sm:w-auto h-10 px-6 gap-2 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold"
             onClick={handleSubmit}
             disabled={isSubmitting || isSkipping}
           >

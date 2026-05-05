@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { AgentType } from '@/lib/types';
 import { ScoreRing } from '@/components/ui/score-ring';
-import { Check, ChevronRight, Share2 } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useRouter } from '@/navigation';
@@ -104,7 +104,7 @@ export function AnalysisProgress({ ideaId, onViewResults, onBack }: AnalysisProg
   const runningIdx = tiles.map((t, i) => t.status === 'running' ? i : -1).filter(i => i >= 0);
 
   return (
-    <div className="wizard-card analyze-card w-full max-w-[680px] mx-auto p-10 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[24px]">
+    <div className="wizard-card analyze-card w-full max-w-[680px] mx-auto p-5 sm:p-10 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[16px] sm:rounded-[24px]">
       <h2 className="wizard-h1 text-[28px] font-bold font-display tracking-tight text-[var(--text-primary)] mb-2">
         {allDone ? 'Análisis completo' : 'Analizando tu idea…'}
       </h2>
@@ -280,18 +280,18 @@ export function AnalysisProgress({ ideaId, onViewResults, onBack }: AnalysisProg
             </div>
           </div>
           <div className="success-actions">
-            <button className="btn btn-secondary" onClick={() => {}}><Share2 size={13} /> Compartir</button>
-            <button className="btn btn-primary" onClick={onViewResults}>Ver resultados <ChevronRight size={12} strokeWidth={2.4} /></button>
+            <Button variant="secondary" onClick={() => {}} className="w-full sm:w-auto h-10 px-5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)]"><Share2 size={13} className="mr-2" /> Compartir</Button>
+            <Button className="w-full sm:w-auto h-10 px-6 gap-2 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold" onClick={onViewResults}>Ver resultados <ChevronRight size={12} strokeWidth={2.4} /></Button>
           </div>
         </div>
       )}
 
-      <div className="wizard-actions flex items-center justify-between mt-12 pt-8 border-t border-[var(--border-subtle)]">
-        <Button variant="ghost" className="text-[14px] text-[var(--text-muted)] hover:text-[var(--text-primary)]" onClick={onBack || (() => router.push('/dashboard'))}>
-          <ChevronRight size={12} style={{ transform: 'rotate(180deg)', marginRight: 6 }} /> Atrás
+      <div className="wizard-actions flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-[var(--border-subtle)]">
+        <Button variant="ghost" className="order-2 sm:order-1 text-[14px] text-[var(--text-muted)] hover:text-[var(--text-primary)]" onClick={onBack || (() => router.push('/dashboard'))}>
+          <ChevronLeft size={16} className="mr-2" /> Atrás
         </Button>
         {!allDone && (
-          <Button variant="secondary" className="border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)]">
+          <Button variant="secondary" className="order-1 sm:order-2 w-full sm:w-auto border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)]">
             Cancelar análisis
           </Button>
         )}

@@ -153,11 +153,11 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
   ];
 
   return (
-    <div className="wizard-card w-full max-w-[680px] mx-auto p-10 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[24px]">
+    <div className="wizard-card w-full max-w-[680px] mx-auto p-5 sm:p-10 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[16px] sm:rounded-[24px]">
       <h2 className="wizard-h1 text-[28px] font-bold font-display tracking-tight text-[var(--text-primary)] mb-2">¿Qué idea quieres validar?</h2>
       <p className="wizard-sub text-[14.5px] text-[var(--text-secondary)] leading-relaxed mb-8">Cuanto más contexto des, mejor el análisis. Empieza por el formato que te resulte natural.</p>
 
-      <div className="mode-tabs grid grid-cols-3 gap-3 mb-8">
+      <div className="mode-tabs grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
         {MODES.map(mode => {
           const Icon = mode.icon;
           return (
@@ -307,17 +307,17 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
           </div>
         )}
 
-        <div className="wizard-actions flex items-center justify-between mt-12 pt-8 border-t border-[var(--border-subtle)]">
-          <Button type="button" variant="ghost" className="text-[14px] text-[var(--text-muted)] hover:text-[var(--text-primary)]" onClick={() => router.push('/dashboard')}>
+        <div className="wizard-actions flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-[var(--border-subtle)]">
+          <Button type="button" variant="ghost" className="order-2 sm:order-1 text-[14px] text-[var(--text-muted)] hover:text-[var(--text-primary)]" onClick={() => router.push('/dashboard')}>
             Cancelar
           </Button>
-          <div className="flex gap-2">
-            <Button type="button" variant="secondary" className="h-10 px-5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)]">
+          <div className="flex flex-col sm:flex-row gap-2 order-1 sm:order-2">
+            <Button type="button" variant="secondary" className="w-full sm:w-auto h-10 px-5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)]">
               Guardar borrador
             </Button>
             <Button 
               type="submit" 
-              className="h-10 px-6 gap-2 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold text-[14px]"
+              className="w-full sm:w-auto h-10 px-6 gap-2 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold text-[14px]"
               disabled={isSubmitting || isRecording || isTranscribing}
             >
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
