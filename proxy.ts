@@ -63,6 +63,6 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Match only internationalized pathnames and exclude internal Next.js paths
-  matcher: ['/((?!_next|.*\\..*).*)']
+  // Match only internationalized pathnames and exclude internal Next.js paths and API routes
+  matcher: ['/((?!api|_next|.*\\..*).*)']
 };
