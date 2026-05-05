@@ -28,12 +28,17 @@ interface IdeaDetailClientProps {
 }
 
 export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
+  const [mounted, setMounted] = React.useState(false);
   const [idea, setIdea] = React.useState<IdeaFull>(initialIdea);
   const [isAnalyzingAll, setIsAnalyzingAll] = React.useState(false);
   const [analyzingAgents, setAnalyzingAgents] = React.useState<Set<AgentType>>(new Set());
   const [isSummarizing, setIsSummarizing] = React.useState(false);
   const [isSynthesizing, setIsSynthesizing] = React.useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSaveField = async (fieldName: IdeaField, value: string) => {
     try {
@@ -125,7 +130,8 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
       
       const textToSpeak = `Análisis de ${idea.title}. ${parts.join(' ')}`;
 
-      const response = await fetch(`${window.location.origin}/api/audio/synthesize`, {
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+      const response = await fetch(`${baseUrl}/api/audio/synthesize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: textToSpeak, idea_id: idea.id }),
@@ -155,6 +161,8 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
 
   const agentsDone = idea.analyses?.length || 0;
   const totalAgents = 5;
+
+  if (!mounted) return null;
 
   return (
     <div className="main">
