@@ -43,51 +43,47 @@ export function IdeaCard({ idea, delay = 0 }: IdeaCardProps) {
           <ScoreRing value={idea.compositeScore} size={64} stroke={4} animateDelay={delay} />
         </div>
 
-        <div className="flex justify-between items-center gap-10">
-          <span className="priority-badge" style={{ background: scoreBg(idea.compositeScore), color }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+          <span className="priority-badge" style={{ color, border: '1px solid currentColor', background: `color-mix(in srgb, ${color} 10%, transparent)` }}>
             <span className="pulse" />
             {scoreLabel(idea.compositeScore)}
           </span>
           
-          <div className="agents-progress flex items-center gap-2 text-[10.5px] font-mono uppercase tracking-wider text-[var(--text-muted)]">
-            <div className="agent-dots flex gap-0.5">
+          <div className="agents-progress">
+            <div className="agent-dots">
               {Array.from({ length: totalAgents }).map((_, i) => (
                 <div 
                   key={i} 
                   className={cn(
-                    "h-1 w-4 rounded-[2px]", 
-                    i < agentsDone ? "bg-[var(--accent-pri)]" : "bg-[var(--border-subtle)]"
+                    "agent-dot", 
+                    i < agentsDone ? "done" : "idle"
                   )} 
                 />
               ))}
             </div>
-            <span>{agentsDone}/{totalAgents}</span>
+            <span>{agentsDone}/{totalAgents} agentes</span>
           </div>
         </div>
 
-        <div className="idea-stats grid grid-cols-3 gap-0 pt-3.5 border-t border-[var(--border-subtle)]">
-          <div className="idea-stat flex flex-col gap-1.5 px-3 first:pl-0 border-r border-[var(--border-subtle)]">
-            <div className="idea-stat-label flex flex-col gap-1">
-              <span className="text-[9.5px] font-mono text-[var(--text-muted)] uppercase tracking-widest">Confianza</span>
-              <span className="text-[20px] font-display font-bold tracking-tight text-[var(--text-primary)]">
-                {((idea.confidenceScore || 0) * 100).toFixed(0)}%
-              </span>
+        <div className="idea-stats">
+          <div className="idea-stat">
+            <div className="idea-stat-label">
+              <span>Confianza</span>
+              <span className="val">{((idea.confidenceScore || 0) * 100).toFixed(0)}%</span>
             </div>
+            <div className="bar"><div className="bar-fill" style={{ width: `${(idea.confidenceScore || 0) * 100}%`, background: 'var(--green)' }}/></div>
           </div>
-          <div className="idea-stat flex flex-col gap-1.5 px-3 border-r border-[var(--border-subtle)]">
-            <div className="idea-stat-label flex flex-col gap-1">
-              <span className="text-[9.5px] font-mono text-[var(--text-muted)] uppercase tracking-widest">Volatilidad</span>
-              <span className="text-[20px] font-display font-bold tracking-tight text-[var(--text-primary)]">
-                {((idea.volatilityScore || 0) * 100).toFixed(0)}%
-              </span>
+          <div className="idea-stat">
+            <div className="idea-stat-label">
+              <span>Volatilidad</span>
+              <span className="val">{((idea.volatilityScore || 0) * 100).toFixed(0)}%</span>
             </div>
+            <div className="bar"><div className="bar-fill" style={{ width: `${(idea.volatilityScore || 0) * 100}%`, background: 'var(--orange)' }}/></div>
           </div>
-          <div className="idea-stat flex flex-col gap-1.5 px-3 last:pr-0">
-            <div className="idea-stat-label flex flex-col gap-1">
-              <span className="text-[9.5px] font-mono text-[var(--text-muted)] uppercase tracking-widest">Análisis</span>
-              <span className="text-[20px] font-display font-bold tracking-tight text-[var(--text-primary)]">
-                {agentsDone}<span className="text-[13px] text-[var(--text-muted)] font-normal">/5</span>
-              </span>
+          <div className="idea-stat">
+            <div className="idea-stat-label">
+              <span>Análisis</span>
+              <span className="val">{agentsDone}<span style={{fontSize: 13, color:'var(--text-muted)', fontWeight:400}}>/5</span></span>
             </div>
           </div>
         </div>

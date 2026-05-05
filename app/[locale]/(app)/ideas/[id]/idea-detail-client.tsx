@@ -231,10 +231,10 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               {idea.title}
             </h1>
             <span 
-              className="priority-badge h-fit px-3 py-1 rounded-[7px] text-[12px] font-mono font-bold uppercase tracking-wider" 
-              style={{ background: scoreBg(idea.compositeScore, 14), color: scoreColor(idea.compositeScore) }}
+              className="priority-badge" 
+              style={{ color: scoreColor(idea.compositeScore), border: '1px solid currentColor', background: `color-mix(in srgb, ${scoreColor(idea.compositeScore)} 10%, transparent)` }}
             >
-              <span className="pulse h-1.5 w-1.5 rounded-full bg-current mr-2 inline-block animate-pulse" />
+              <span className="pulse" />
               {scoreLabel(idea.compositeScore)}
             </span>
           </div>
