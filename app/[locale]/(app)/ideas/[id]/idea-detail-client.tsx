@@ -102,12 +102,30 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
       toast.error('Tu navegador no soporta la síntesis de voz.');
       return;
     }
+    const analyses = idea.analyses ?? [];
+    if (analyses.length === 0) {
+      toast.error('No hay análisis generados todavía.');
+      return;
+    }
     window.speechSynthesis.cancel();
-    const textToSpeak = `Idea: ${idea.title}. Sector: ${idea.sector || 'No especificado'}. Modelo de negocio: ${idea.businessModel || 'No especificado'}. Resumen: ${idea.description}`;
+    const agentNames: Record<AgentType, string> = {
+      market: 'Mercado',
+      competition: 'Competencia',
+      economics: 'Economía unitaria',
+      gtm: 'Go-to-market',
+      founder_fit: 'Fit con el fundador',
+    };
+    const parts = analyses.map((a: Analysis) => {
+      const name = agentNames[a.agentType as AgentType] ?? a.agentType;
+      const strengths = a.strengths?.slice(0, 2).join('. ') ?? '';
+      const risks = a.risks?.slice(0, 1).join('. ') ?? '';
+      return `${name}: puntuación ${a.score.toFixed(1)}. ${a.headline}. Fortalezas: ${strengths}. Riesgo principal: ${risks}.`;
+    });
+    const textToSpeak = `Análisis de ${idea.title}. ${parts.join(' ')}`;
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.lang = 'es-ES';
     window.speechSynthesis.speak(utterance);
-    toast.info('Reproduciendo resumen...');
+    toast.info('Reproduciendo análisis...');
   };
 
   const analysisAgents: AgentType[] = ['market', 'competition', 'economics', 'gtm', 'founder_fit'];
