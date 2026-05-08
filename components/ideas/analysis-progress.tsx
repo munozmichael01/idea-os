@@ -118,7 +118,7 @@ export function AnalysisProgress({ ideaId, onViewResults, onBack }: AnalysisProg
       <div className={cn("analyze-stage", celebrate && "celebrate")}>
         <div className="analyze-bg-grid" aria-hidden="true" />
 
-        <svg className="analyze-svg" viewBox={`0 0 ${W} ${H}`} width="100%" height={H}>
+        <svg className="analyze-svg" viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
           <defs>
             <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="var(--green)" stopOpacity="0.95" />
@@ -185,7 +185,8 @@ export function AnalysisProgress({ ideaId, onViewResults, onBack }: AnalysisProg
                 <circle
                   r={r + 6}
                   className="node-arc-fill"
-                  style={{ stroke: agent.color, strokeDasharray: `${dash} ${C}`, transform: 'rotate(-90deg)', transformOrigin: 'center' }}
+                  transform="rotate(-90)"
+                  style={{ stroke: agent.color, strokeDasharray: `${dash} ${C}` }}
                 />
                 <circle r={r} className="node-body" style={{ '--accent': agent.color } as React.CSSProperties} />
                 <circle r={r - 5} className="node-inner" style={{ stroke: agent.color }} />
