@@ -10,12 +10,18 @@ export const agent: AgentDefinition = {
 
   buildPrompt(idea: Idea, contextAnswers?: ContextAnswers): string {
     const context = buildContextBlock(idea, contextAnswers)
-    return `Eres un experto en evaluación de founder-market fit. Analiza si esta idea es adecuada para quien la propone, basándote en la información disponible.
+    const hasContext = contextAnswers && Object.keys(contextAnswers).length > 0
+    const contextWarning = hasContext
+      ? ''
+      : '\nADVERTENCIA: No hay respuestas de contexto del fundador. El análisis se basa únicamente en la descripción de la idea; las conclusiones sobre el fit son especulativas.\n'
+    return `Eres un experto en evaluación de founder-market fit. Analiza si esta idea es adecuada para quien la propone.
 
-${context}
+${context}${contextWarning}
+
+${hasContext ? 'USA LAS RESPUESTAS DEL FUNDADOR como fuente primaria. No inferas lo que el fundador ya ha declarado explícitamente.' : 'Sin datos directos del fundador, indica en cada punto que el análisis es inferido de la descripción de la idea.'}
 
 Analiza:
-1. Alineación entre la idea y el conocimiento/experiencia que se infiere del fundador
+1. Alineación entre la idea y el conocimiento/experiencia declarado por el fundador
 2. Motivación intrínseca y longevidad del interés en el problema
 3. Red de contactos y acceso a clientes o expertos del sector
 4. Capacidad técnica o de ejecución requerida vs disponible
@@ -46,7 +52,7 @@ function buildContextBlock(idea: Idea, contextAnswers?: ContextAnswers): string 
   ].filter(Boolean)
 
   if (contextAnswers && Object.keys(contextAnswers).length > 0) {
-    lines.push('\nRESPUESTAS DE CONTEXTO ADICIONAL:')
+    lines.push('\nPERFIL DEL FUNDADOR (respuestas directas del fundador — tratar como hechos, no inferencias):')
     for (const [, answer] of Object.entries(contextAnswers)) {
       lines.push(`- ${answer}`)
     }

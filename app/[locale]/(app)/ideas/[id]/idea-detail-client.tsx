@@ -325,54 +325,6 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               <FileText className="h-4 w-4" />
               Exportar
             </Button>
-            {idea.status !== 'IMPLEMENTING' && (
-              <Button 
-                variant="secondary" 
-                className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--green)] hover:border-[var(--green)] hover:text-[var(--green)] font-medium"
-                onClick={async () => {
-                  try {
-                    await import('@/lib/actions/ideas').then(m => m.updateIdea(idea.id, { status: 'IMPLEMENTING' }));
-                    const updatedIdea = await import('@/lib/actions/ideas').then(m => m.getIdea(idea.id));
-                    setIdea(updatedIdea);
-                    toast.success('Movida a Implementando');
-                  } catch (e) { toast.error('Error al actualizar estado'); }
-                }}
-              >
-                Apostar por la idea
-              </Button>
-            )}
-            {idea.status !== 'DISCARDED' && (
-              <Button 
-                variant="ghost" 
-                className="h-10 px-5 gap-2.5 text-[var(--text-muted)] hover:text-[var(--red)] font-medium"
-                onClick={async () => {
-                  try {
-                    await import('@/lib/actions/ideas').then(m => m.updateIdea(idea.id, { status: 'DISCARDED' }));
-                    const updatedIdea = await import('@/lib/actions/ideas').then(m => m.getIdea(idea.id));
-                    setIdea(updatedIdea);
-                    toast.success('Idea descartada');
-                  } catch (e) { toast.error('Error al actualizar estado'); }
-                }}
-              >
-                Descartar
-              </Button>
-            )}
-            {idea.status !== 'ANALYZING' && (
-              <Button 
-                variant="ghost" 
-                className="h-10 px-5 gap-2.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] font-medium"
-                onClick={async () => {
-                  try {
-                    await import('@/lib/actions/ideas').then(m => m.updateIdea(idea.id, { status: 'ANALYZING' }));
-                    const updatedIdea = await import('@/lib/actions/ideas').then(m => m.getIdea(idea.id));
-                    setIdea(updatedIdea);
-                    toast.success('Movida a Analizando');
-                  } catch (e) { toast.error('Error al actualizar estado'); }
-                }}
-              >
-                Volver a Analizando
-              </Button>
-            )}
           </div>
         </div>
 
