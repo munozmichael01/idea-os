@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/navigation';
 import { cn } from '@/lib/utils';
 import { IdeaWithAnalyses } from '@/lib/types';
+import { IdeaStatus } from '@prisma/client';
 
 interface DashboardClientProps {
   initialIdeas: IdeaWithAnalyses[];
@@ -57,6 +58,7 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
   const commonT = useTranslations('Common');
   const [rankingMode, setRankingMode] = React.useState('composite');
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
+  const [activeTab, setActiveTab] = React.useState<IdeaStatus>('ANALYZING');
 
   const RANKING_MODES = [
     { id: 'composite', label: 'Oportunidad', desc: 'Score compuesto global' },
@@ -67,7 +69,7 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
   ];
 
   const sortedIdeas = React.useMemo(() => {
-    let list = [...initialIdeas];
+    let list = initialIdeas.filter(i => i.status === activeTab);
     switch (rankingMode) {
       case 'viable':
         list.sort((a, b) => (b.confidenceScore || 0) - (a.confidenceScore || 0));
@@ -79,9 +81,10 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
         list.sort((a, b) => (b.compositeScore || 0) - (a.compositeScore || 0));
     }
     return list;
-  }, [initialIdeas, rankingMode]);
+  }, [initialIdeas, rankingMode, activeTab]);
 
-  const isEmpty = initialIdeas.length === 0;
+  const isEmpty = sortedIdeas.length === 0 && initialIdeas.length === 0;
+  const isTabEmpty = sortedIdeas.length === 0;
 
   const avgScore = initialIdeas.length > 0 
     ? initialIdeas.reduce((acc, curr) => acc + (curr.compositeScore || 0), 0) / initialIdeas.length 
@@ -117,7 +120,7 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
       </div>
 
       {/* Page header */}
-      <div className="page-header">
+      <div className="page-header mb-2">
         <div>
           <h1 className="page-title">
             {commonT('dashboard')}
@@ -129,6 +132,30 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
           </p>
         </div>
       </div>
+
+      {/* Tabs */}
+      {!isEmpty && (
+        <div className="flex border-b border-[var(--border-subtle)] mb-8">
+          <button 
+            className={cn("px-4 py-3 text-[13.5px] font-medium border-b-2 transition-all -mb-[1px]", activeTab === 'ANALYZING' ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]")} 
+            onClick={() => setActiveTab('ANALYZING')}
+          >
+            Analizando ({initialIdeas.filter(i => i.status === 'ANALYZING').length})
+          </button>
+          <button 
+            className={cn("px-4 py-3 text-[13.5px] font-medium border-b-2 transition-all -mb-[1px]", activeTab === 'IMPLEMENTING' ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]")} 
+            onClick={() => setActiveTab('IMPLEMENTING')}
+          >
+            Implementando ({initialIdeas.filter(i => i.status === 'IMPLEMENTING').length})
+          </button>
+          <button 
+            className={cn("px-4 py-3 text-[13.5px] font-medium border-b-2 transition-all -mb-[1px]", activeTab === 'DISCARDED' ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]")} 
+            onClick={() => setActiveTab('DISCARDED')}
+          >
+            Descartadas ({initialIdeas.filter(i => i.status === 'DISCARDED').length})
+          </button>
+        </div>
+      )}
 
       {/* Stats */}
       {!isEmpty && (
@@ -162,7 +189,7 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
       )}
 
       {/* Ranking bar */}
-      {!isEmpty && (
+      {!isTabEmpty && !isEmpty && (
         <>
           <div className="section-head flex items-center justify-between mb-4">
             <h2 className="text-[15px] font-bold font-display flex items-center gap-2">
@@ -236,6 +263,10 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
               Grabar idea
             </Button>
           </div>
+        </div>
+      ) : isTabEmpty ? (
+        <div className="empty border border-dashed border-[var(--border-subtle)] rounded-[16px] py-16 px-8 text-center flex flex-col items-center gap-4">
+          <p className="text-[14px] text-[var(--text-secondary)]">No hay ideas en este estado.</p>
         </div>
       ) : (
         <div className={cn(

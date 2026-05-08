@@ -20,8 +20,9 @@ enum WorkspaceRole {
 }
 
 enum IdeaStatus {
-  active
-  archived
+  ANALYZING
+  IMPLEMENTING
+  DISCARDED
 }
 
 enum InputType {
@@ -122,7 +123,7 @@ model Idea {
   compositeScore  Float?     @map("composite_score")
   confidenceScore Float?     @map("confidence_score")
   volatilityScore Float?     @map("volatility_score")
-  status          IdeaStatus @default(active)
+  status          IdeaStatus @default(ANALYZING)
   inputType       InputType  @default(text) @map("input_type")
   createdAt       DateTime   @default(now()) @map("created_at")
   updatedAt       DateTime   @updatedAt @map("updated_at")
