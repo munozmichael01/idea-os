@@ -44,10 +44,18 @@ function computeInputHash(idea: Idea, affectedFields: IdeaField[]): string {
 }
 
 async function refreshScores(ideaId: string): Promise<void> {
-  const [analyses, hypotheses] = await Promise.all([
-    prisma.analysis.findMany({ where: { ideaId } }),
+  const [allAnalyses, hypotheses] = await Promise.all([
+    prisma.analysis.findMany({ where: { ideaId }, orderBy: { createdAt: 'desc' } }),
     prisma.hypothesis.findMany({ where: { ideaId } }),
   ])
+
+  // Use only the most recent analysis per agent type
+  const seen = new Set<string>()
+  const analyses = allAnalyses.filter((a) => {
+    if (seen.has(a.agentType)) return false
+    seen.add(a.agentType)
+    return true
+  })
 
   const compositeScore = computeCompositeScore(analyses)
   const confidenceScore = computeConfidenceScore(hypotheses)
