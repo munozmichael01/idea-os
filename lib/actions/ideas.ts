@@ -135,7 +135,6 @@ export async function updateIdea(
 
         const output = await runAgent(agentDef, idea, contextAnswers ?? undefined)
 
-        await prisma.analysis.deleteMany({ where: { ideaId, agentType } })
         await prisma.analysis.create({
           data: {
             ideaId,
@@ -153,7 +152,6 @@ export async function updateIdea(
           },
         })
 
-        await prisma.hypothesis.deleteMany({ where: { ideaId, agentType } })
         await prisma.hypothesis.createMany({
           data: output.hypotheses.map((description) => ({
             ideaId,
@@ -196,7 +194,6 @@ export async function runAgentForIdea(ideaId: string, agentType: AgentType): Pro
   const inputHash = computeInputHash(idea, agentDef.affectedBy)
   const output = await runAgent(agentDef, idea, contextAnswers ?? undefined)
 
-  await prisma.analysis.deleteMany({ where: { ideaId, agentType } })
   await prisma.analysis.create({
     data: {
       ideaId,
@@ -214,7 +211,6 @@ export async function runAgentForIdea(ideaId: string, agentType: AgentType): Pro
     },
   })
 
-  await prisma.hypothesis.deleteMany({ where: { ideaId, agentType } })
   await prisma.hypothesis.createMany({
     data: output.hypotheses.map((description) => ({ ideaId, agentType, description })),
   })
@@ -235,7 +231,6 @@ export async function runAllAgents(ideaId: string): Promise<void> {
       const inputHash = computeInputHash(idea, agentDef.affectedBy)
       const output = await runAgent(agentDef, idea, contextAnswers ?? undefined)
 
-      await prisma.analysis.deleteMany({ where: { ideaId, agentType: agentDef.id } })
       await prisma.analysis.create({
         data: {
           ideaId,
@@ -253,7 +248,6 @@ export async function runAllAgents(ideaId: string): Promise<void> {
         },
       })
 
-      await prisma.hypothesis.deleteMany({ where: { ideaId, agentType: agentDef.id } })
       await prisma.hypothesis.createMany({
         data: output.hypotheses.map((description) => ({
           ideaId,
