@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import type { Message } from '@anthropic-ai/sdk/resources/messages'
-import type { AgentDefinition, AgentOutput, ContextAnswers, ContextOutput, Idea } from './types'
+import type { AgentDefinition, AgentOutput, Analysis, ContextAnswers, ContextOutput, Idea } from './types'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -58,6 +58,29 @@ export async function runContextAgent(idea: Idea): Promise<ContextOutput> {
     }
 
     return output
+  })
+}
+
+// ─── Synthesis Agent ─────────────────────────────────────────────────────────
+
+export async function runSynthesisAgent(
+  idea: Idea,
+  analyses: Analysis[],
+  contextAnswers?: ContextAnswers
+): Promise<string> {
+  return withRetry(async () => {
+    const { synthesisAgent } = await import('../agents/synthesis')
+    const prompt = synthesisAgent.buildPrompt(idea, analyses, contextAnswers)
+
+    const response = await anthropic.messages.create({
+      model: synthesisAgent.model,
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    })
+
+    const text = extractText(response).trim()
+    if (!text) throw new Error('Synthesis agent returned empty response')
+    return text
   })
 }
 

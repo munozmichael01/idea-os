@@ -22,7 +22,7 @@ import {
 import { Link } from '@/navigation';
 import { toast } from 'sonner';
 import { IdeaFull, AgentType, IdeaField, ContextAnswers, Analysis } from '@/lib/types';
-import { updateIdea, runAgentForIdea, runAllAgents, runContextAgentForIdea } from '@/lib/actions/ideas';
+import { updateIdea, runAgentForIdea, runAllAgents, runContextAgentForIdea, runSynthesisAgentForIdea } from '@/lib/actions/ideas';
 import { ScoreRing, scoreColor, scoreLabel, scoreBg } from '@/components/ui/score-ring';
 import { cn } from '@/lib/utils';
 
@@ -121,13 +121,13 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const handleSummarize = async () => {
     setIsSummarizing(true);
     try {
-      await runContextAgentForIdea(idea.id);
+      await runSynthesisAgentForIdea(idea.id);
       const updatedIdea = await import('@/lib/actions/ideas').then((m: typeof import('@/lib/actions/ideas')) => m.getIdea(idea.id));
       setIdea(updatedIdea);
-      toast.success('Resumen de contexto actualizado');
+      toast.success('Resumen ejecutivo generado');
     } catch (error) {
-      console.error('Error summarizing context:', error);
-      toast.error('Error al generar resumen');
+      console.error('Error generating summary:', error);
+      toast.error('Error al generar el resumen');
     } finally {
       setIsSummarizing(false);
     }
@@ -439,8 +439,8 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               <span className="sub font-normal text-[13px] text-[var(--text-muted)] font-sans">{agentsDone} / {totalAgents} completos</span>
             </h2>
             <div className="agents-grid grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ContextAgentCard 
-                summary={contextAnswers?.summary || 'Haz clic para resumir el contexto inicial.'}
+              <ContextAgentCard
+                summary={idea.executiveSummary ?? undefined}
                 isAnalyzing={isSummarizing}
                 onAnalyze={handleSummarize}
               />

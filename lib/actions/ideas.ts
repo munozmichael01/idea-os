@@ -4,7 +4,7 @@ import { createHash } from 'crypto'
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
 import { createClient } from '@supabase/supabase-js'
-import { runAgent, runContextAgent } from '@/lib/claude'
+import { runAgent, runContextAgent, runSynthesisAgent } from '@/lib/claude'
 import {
   computeCompositeScore,
   computeConfidenceScore,
@@ -188,6 +188,34 @@ export async function runContextAgentForIdea(ideaId: string): Promise<ContextOut
   const output = await runContextAgent(idea)
   revalidatePath(`/ideas/${ideaId}`)
   return output
+}
+
+// ─── runSynthesisAgentForIdea ─────────────────────────────────────────────────
+
+export async function runSynthesisAgentForIdea(ideaId: string): Promise<string> {
+  const idea = await prisma.idea.findUniqueOrThrow({ where: { id: ideaId } })
+  const contextAnswers = idea.contextAnswers as ContextAnswers | null
+
+  const allAnalyses = await prisma.analysis.findMany({
+    where: { ideaId },
+    orderBy: { createdAt: 'desc' },
+  })
+  const seen = new Set<string>()
+  const latestAnalyses = allAnalyses.filter((a) => {
+    if (seen.has(a.agentType)) return false
+    seen.add(a.agentType)
+    return true
+  })
+
+  const summary = await runSynthesisAgent(idea, latestAnalyses, contextAnswers ?? undefined)
+
+  await prisma.idea.update({
+    where: { id: ideaId },
+    data: { executiveSummary: summary },
+  })
+
+  revalidatePath(`/ideas/${ideaId}`)
+  return summary
 }
 
 // ─── runAgentForIdea ──────────────────────────────────────────────────────────
