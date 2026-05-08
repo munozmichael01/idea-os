@@ -4,6 +4,8 @@ import * as React from 'react';
 import { AgentAnalysisCard, ContextAgentCard } from '@/components/ideas/detail/agent-cards';
 import { EditableField } from '@/components/ideas/detail/editable-field';
 import { HypothesisList } from '@/components/ideas/detail/hypothesis-list';
+import { AnalysisProgress } from '@/components/ideas/analysis-progress';
+import { ContextQuestionsForm } from '@/components/ideas/context-questions-form';
 import { Button } from '@/components/ui/button';
 import { 
   Download, 
@@ -37,6 +39,10 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const [isSynthesizing, setIsSynthesizing] = React.useState(false);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
+
+  const [isContextMode, setIsContextMode] = React.useState(false);
+  const [contextQuestions, setContextQuestions] = React.useState<{id: string, text: string}[]>([]);
+  const [isGeneratingContext, setIsGeneratingContext] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
@@ -76,19 +82,40 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
     }
   };
 
-  const handleRunAllAgents = async () => {
+  const handleRunAllAgents = () => {
     setIsAnalyzingAll(true);
-    try {
-      await runAllAgents(idea.id);
-      const updatedIdea = await import('@/lib/actions/ideas').then((m: typeof import('@/lib/actions/ideas')) => m.getIdea(idea.id));
-      setIdea(updatedIdea);
-      toast.success('Análisis completo finalizado');
-    } catch (error) {
+    runAllAgents(idea.id).catch((error) => {
       console.error('Error running all agents:', error);
       toast.error('Error al ejecutar todos los agentes');
-    } finally {
       setIsAnalyzingAll(false);
+    });
+  };
+
+  const handleGenerateContext = async () => {
+    setIsGeneratingContext(true);
+    try {
+      const out = await runContextAgentForIdea(idea.id);
+      setContextQuestions(out.questions.map(q => ({ id: q.id, text: q.question })));
+      setIsContextMode(true);
+    } catch (error) {
+      console.error('Error generating context:', error);
+      toast.error('Error al generar preguntas de contexto');
+    } finally {
+      setIsGeneratingContext(false);
     }
+  };
+
+  const handleAnswersSubmit = async (answers: Record<string, string>) => {
+    setIsContextMode(false);
+    setIsAnalyzingAll(true);
+    
+    import('@/lib/actions/ideas')
+      .then(m => m.answerContextQuestions(idea.id, answers))
+      .catch((error) => {
+        console.error('Error submitting context:', error);
+        toast.error('Error al enviar respuestas');
+        setIsAnalyzingAll(false);
+      });
   };
 
   const handleSummarize = async () => {
@@ -181,6 +208,23 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const totalAgents = 5;
 
   if (!mounted) return null;
+
+  if (isAnalyzingAll) {
+    return (
+      <div className="main min-h-svh flex items-center justify-center p-4">
+        <AnalysisProgress 
+          ideaId={idea.id} 
+          onViewResults={async () => {
+            setIsAnalyzingAll(false);
+            const updatedIdea = await import('@/lib/actions/ideas').then((m) => m.getIdea(idea.id));
+            setIdea(updatedIdea);
+            toast.success('Análisis completo finalizado');
+          }} 
+          onBack={() => setIsAnalyzingAll(false)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="main">
@@ -312,6 +356,31 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
           </div>
         </div>
       </div>
+
+      {/* Context Banner */}
+      {(!contextAnswers || Object.keys(contextAnswers).length === 0) && !isContextMode && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 mb-8 bg-[var(--bg-elev)] border border-[var(--border-subtle)] rounded-xl">
+          <div>
+            <h3 className="text-sm font-bold text-[var(--text-primary)]">Falta contexto adicional</h3>
+            <p className="text-xs text-[var(--text-secondary)]">El análisis de Economics y Founder Fit requiere más información para ser preciso.</p>
+          </div>
+          <Button onClick={handleGenerateContext} disabled={isGeneratingContext} className="bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold px-5">
+            {isGeneratingContext ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+            Completar contexto
+          </Button>
+        </div>
+      )}
+
+      {isContextMode && (
+        <div className="mb-10">
+           <ContextQuestionsForm 
+             questions={contextQuestions} 
+             onSubmit={handleAnswersSubmit}
+             onSkip={async () => setIsContextMode(false)}
+             onBack={() => setIsContextMode(false)}
+           />
+        </div>
+      )}
 
       {/* Two-column body */}
       <div className="detail-grid grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-12">
