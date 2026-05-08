@@ -283,7 +283,7 @@ export async function getIdea(ideaId: string): Promise<IdeaFull> {
   return prisma.idea.findUniqueOrThrow({
     where: { id: ideaId },
     include: {
-      analyses: true,
+      analyses: { orderBy: { createdAt: 'desc' } },
       hypotheses: { include: { experiments: true } },
       experiments: true,
       audioInputs: true,
