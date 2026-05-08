@@ -109,9 +109,8 @@ export default function NewIdeaPage() {
     if (!ideaId) return;
 
     try {
-      await answerContextQuestions(ideaId, answers);
-      await runAllAgents(ideaId);
       setCurrentStep(2);
+      await answerContextQuestions(ideaId, answers);
     } catch (error) {
       console.error('Error submitting answers:', error);
       toast.error('Error al enviar respuestas');
@@ -122,8 +121,8 @@ export default function NewIdeaPage() {
     if (!ideaId) return;
 
     try {
-      await runAllAgents(ideaId);
       setCurrentStep(2);
+      await runAllAgents(ideaId);
     } catch (error) {
       console.error('Error starting analysis:', error);
       toast.error('Error al iniciar análisis');
