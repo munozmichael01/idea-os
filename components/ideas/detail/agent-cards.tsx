@@ -192,9 +192,11 @@ export function ContextAgentCard({ summary, isAnalyzing, onAnalyze }: ContextAge
         </div>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 flex-1 min-h-0">
         {summary ? (
-          <p className="text-[13.5px] text-[var(--text-secondary)] leading-relaxed line-clamp-6">{summary}</p>
+          <div className="overflow-y-auto max-h-[260px] pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'var(--border-subtle) transparent' }}>
+            <p className="text-[13.5px] text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">{summary}</p>
+          </div>
         ) : (
           <div className="flex h-32 flex-col items-center justify-center space-y-2 text-muted-foreground bg-[var(--bg-elev)] rounded-[10px] border border-dashed border-[var(--border-subtle)]">
             <p className="text-xs">Context not yet summarized</p>
