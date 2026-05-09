@@ -460,7 +460,12 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
             </h2>
             <div className="agents-grid grid grid-cols-1 md:grid-cols-2 gap-4">
               <ContextAgentCard
-                summary={idea.executiveSummary ?? undefined}
+                summary={
+                  idea.executiveSummary ??
+                  (contextAnswers && Object.keys(contextAnswers).length > 0
+                    ? Object.values(contextAnswers as Record<string, string>).join('\n\n')
+                    : undefined)
+                }
                 isAnalyzing={isSummarizing}
                 onAnalyze={handleSummarize}
               />
