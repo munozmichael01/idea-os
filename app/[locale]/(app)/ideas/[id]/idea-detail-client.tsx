@@ -39,6 +39,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const [isSynthesizing, setIsSynthesizing] = React.useState(false);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [pendingDiscard, setPendingDiscard] = React.useState(false);
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const [isContextMode, setIsContextMode] = React.useState(false);
@@ -254,35 +255,35 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
           <span className="kbd">⌘K</span>
         </div>
         <div className="topbar-actions flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-9 w-9 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+          <Button variant="ghost" size="icon" className="h-11 w-11 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
             <Bell className="h-[15px] w-[15px]" />
           </Button>
-          <Button variant="secondary" className="h-9 px-4 gap-2 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)]" onClick={handleRunAllAgents} disabled={isAnalyzingAll}>
+          <Button variant="secondary" className="hidden sm:flex h-9 px-4 gap-2 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)]" onClick={handleRunAllAgents} disabled={isAnalyzingAll}>
             {isAnalyzingAll ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-[13px] w-[13px]" />}
             Analizar todo
           </Button>
           <Link href="/ideas/new">
-            <Button className="h-9 px-4 gap-2 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold">
+            <Button className="h-9 px-3 sm:px-4 gap-2 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold">
               <Plus className="h-[14px] w-[14px]" strokeWidth={2.4} />
-              Nueva idea
+              <span className="hidden sm:inline">Nueva idea</span>
             </Button>
           </Link>
         </div>
       </div>
 
-      <div className="crumbs flex items-center gap-2 text-[12px] text-[var(--text-muted)] mb-8">
-        <Link href="/dashboard" className="hover:text-[var(--text-primary)] transition-colors">Panel</Link>
-        <span className="sep text-[var(--border-strong)]">/</span>
-        <Link href="/dashboard" className="hover:text-[var(--text-primary)] transition-colors">Ideas</Link>
-        <span className="sep text-[var(--border-strong)]">/</span>
-        <span className="text-[var(--text-primary)] font-medium">{idea.title}</span>
+      <div className="crumbs flex items-center gap-2 text-[12px] text-[var(--text-muted)] mb-8 min-w-0">
+        <Link href="/dashboard" className="hover:text-[var(--text-primary)] transition-colors shrink-0">Panel</Link>
+        <span className="sep text-[var(--border-strong)] shrink-0">/</span>
+        <Link href="/dashboard" className="hover:text-[var(--text-primary)] transition-colors shrink-0 hidden sm:inline">Ideas</Link>
+        <span className="sep text-[var(--border-strong)] shrink-0 hidden sm:inline">/</span>
+        <span className="text-[var(--text-primary)] font-medium truncate">{idea.title}</span>
       </div>
 
       {/* Header */}
       <div className="detail-header flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
         <div className="flex-1">
           <div className="detail-title-row flex items-center gap-4 mb-3 flex-wrap">
-            <h1 className="detail-title text-[48px] font-extrabold font-display leading-[0.95] tracking-tight text-[var(--text-primary)]">
+            <h1 className="detail-title text-[28px] sm:text-[40px] lg:text-[48px] font-extrabold font-display leading-[0.95] tracking-tight text-[var(--text-primary)]">
               {idea.title}
             </h1>
             <span
@@ -373,12 +374,12 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               </Button>
             )}
             {pendingDiscard && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[var(--red)] bg-[color-mix(in_srgb,var(--red)_8%,transparent)]">
-                <span className="text-[12.5px] text-[var(--red)] font-medium">¿Descartar esta idea?</span>
+              <div className="flex flex-wrap items-center gap-2 px-3 py-2 rounded-xl border border-[var(--red)] bg-[color-mix(in_srgb,var(--red)_8%,transparent)]">
+                <span className="text-[12.5px] text-[var(--red)] font-medium w-full sm:w-auto">¿Descartar esta idea?</span>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-7 px-3 text-[12px] text-[var(--red)] hover:bg-[color-mix(in_srgb,var(--red)_15%,transparent)] font-bold"
+                  className="h-11 sm:h-7 px-4 sm:px-3 text-[12px] text-[var(--red)] hover:bg-[color-mix(in_srgb,var(--red)_15%,transparent)] font-bold flex-1 sm:flex-none"
                   onClick={async () => {
                     try {
                       await import('@/lib/actions/ideas').then(m => m.updateIdea(idea.id, { status: 'DISCARDED' }));
@@ -392,7 +393,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-7 px-3 text-[12px] text-[var(--text-muted)] font-medium"
+                  className="h-11 sm:h-7 px-4 sm:px-3 text-[12px] text-[var(--text-muted)] font-medium flex-1 sm:flex-none"
                   onClick={() => setPendingDiscard(false)}
                 >Cancelar</Button>
               </div>
@@ -417,7 +418,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
         </div>
 
         {/* Score panel */}
-        <div className="score-panel flex flex-col items-center gap-6 p-8 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[24px] lg:w-[320px]">
+        <div className="score-panel flex flex-col items-center gap-6 p-6 sm:p-8 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[20px] sm:rounded-[24px] w-full lg:w-[320px]">
           <ScoreRing value={idea.compositeScore} size={110} stroke={8} />
           <div className="score-panel-meta w-full">
             <div className="score-meta-label text-center text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-[0.2em] mb-4">Score compuesto</div>
@@ -513,8 +514,17 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
           <HypothesisList hypotheses={idea.hypotheses} />
         </div>
 
-        {/* Side panel */}
-        <aside className="side-panel flex flex-col gap-6">
+        {/* Side panel — collapsible on mobile */}
+        <aside className="side-panel flex flex-col gap-4">
+          {/* Mobile toggle */}
+          <button
+            className="lg:hidden flex items-center justify-between w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[12px] text-[13.5px] font-bold font-display text-[var(--text-primary)]"
+            onClick={() => setSidebarOpen(o => !o)}
+          >
+            <span>Brief · Acciones · Scores</span>
+            <span className="text-[var(--text-muted)] text-[11px] font-normal font-sans">{sidebarOpen ? 'Ocultar ↑' : 'Mostrar ↓'}</span>
+          </button>
+          <div className={cn("flex flex-col gap-6", sidebarOpen ? "flex" : "hidden lg:flex")}>
           <div className="side-card p-6 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[18px]">
             <h3 className="text-[14px] font-bold font-display flex items-center gap-2 mb-6">
               Brief editable 
@@ -610,6 +620,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               })}
             </div>
           </div>
+          </div>{/* end collapsible wrapper */}
         </aside>
       </div>
     </div>
