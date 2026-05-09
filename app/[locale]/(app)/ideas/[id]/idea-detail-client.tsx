@@ -204,7 +204,13 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const analysisAgents: AgentType[] = ['market', 'competition', 'economics', 'gtm', 'founder_fit'];
   const contextAnswers = idea.contextAnswers as ContextAnswers | null;
 
-  const agentsDone = idea.analyses?.length || 0;
+  // Deduplicate by agentType — analyses are ordered desc so first match = latest
+  const latestAnalysesByAgent = analysisAgents.reduce<Analysis[]>((acc, agentType) => {
+    const a = idea.analyses.find((x: Analysis) => x.agentType === agentType);
+    if (a) acc.push(a);
+    return acc;
+  }, []);
+  const agentsDone = new Set(idea.analyses?.map((a: Analysis) => a.agentType) ?? []).size;
   const totalAgents = 5;
 
   if (!mounted) return null;
@@ -517,11 +523,11 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
             <h3 className="text-[14px] font-bold font-display flex items-center justify-between mb-6">
               Próximas acciones 
               <span className="pill px-2 py-0.5 rounded-[5px] bg-[var(--bg-elev)] border border-[var(--border-subtle)] text-[9px] font-mono text-[var(--text-muted)] uppercase tracking-wider">
-                {idea.analyses?.filter(a => a.nextValidationAction).length || 0}
+                {latestAnalysesByAgent.filter(a => a.nextValidationAction).length || 0}
               </span>
             </h3>
             <div className="flex flex-col gap-5">
-              {idea.analyses?.filter(a => a.nextValidationAction).slice(0, 4).map((analysis, i) => {
+              {latestAnalysesByAgent.filter(a => a.nextValidationAction).slice(0, 4).map((analysis) => {
                 const color = scoreColor(analysis.score);
                 return (
                   <div key={analysis.id} className="flex gap-3 items-start">
@@ -533,7 +539,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
                   </div>
                 );
               })}
-              {idea.analyses?.filter(a => !a.nextValidationAction).length === totalAgents && (
+              {latestAnalysesByAgent.every(a => !a.nextValidationAction) && latestAnalysesByAgent.length === totalAgents && (
                 <p className="text-[12.5px] text-[var(--text-muted)] italic">No hay acciones pendientes.</p>
               )}
             </div>
