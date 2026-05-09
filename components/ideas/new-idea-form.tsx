@@ -157,29 +157,29 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
       <h2 className="wizard-h1 text-[28px] font-bold font-display tracking-tight text-[var(--text-primary)] mb-2">¿Qué idea quieres validar?</h2>
       <p className="wizard-sub text-[14.5px] text-[var(--text-secondary)] leading-relaxed mb-8">Cuanto más contexto des, mejor el análisis. Empieza por el formato que te resulte natural.</p>
 
-      <div className="mode-tabs grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+      <div className="mode-tabs grid grid-cols-3 gap-2 sm:gap-3 mb-8">
         {MODES.map(mode => {
           const Icon = mode.icon;
           return (
-            <button 
-              key={mode.id} 
+            <button
+              key={mode.id}
               type="button"
               className={cn(
-                "mode-tab flex flex-col items-start gap-1 p-4 rounded-[14px] border transition-all text-left",
-                activeTab === mode.id 
-                  ? "bg-[var(--bg-elev)] border-[var(--accent-pri)] ring-1 ring-[var(--accent-pri)]" 
+                "mode-tab flex flex-col items-start gap-1 p-3 sm:p-4 rounded-[12px] sm:rounded-[14px] border transition-all text-left min-w-0",
+                activeTab === mode.id
+                  ? "bg-[var(--bg-elev)] border-[var(--accent-pri)] ring-1 ring-[var(--accent-pri)]"
                   : "bg-transparent border-[var(--border-subtle)] hover:border-[var(--border-active)]"
               )}
               onClick={() => setActiveTab(mode.id)}
             >
               <span className={cn(
-                "mode-title flex items-center gap-2 text-[13.5px] font-bold font-display tracking-tight transition-colors",
+                "mode-title flex items-center gap-1.5 text-[12px] sm:text-[13.5px] font-bold font-display tracking-tight transition-colors truncate w-full",
                 activeTab === mode.id ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"
               )}>
-                <Icon className="h-3.5 w-3.5" />
-                {mode.title}
+                <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                <span className="truncate">{mode.title}</span>
               </span>
-              <span className="mode-desc text-[11px] text-[var(--text-muted)] font-medium leading-none">{mode.desc}</span>
+              <span className="mode-desc text-[10px] sm:text-[11px] text-[var(--text-muted)] font-medium leading-none hidden sm:block">{mode.desc}</span>
             </button>
           );
         })}

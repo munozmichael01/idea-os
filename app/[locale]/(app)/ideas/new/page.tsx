@@ -20,38 +20,57 @@ const STEPS = [
 ];
 
 const StepBar = ({ current }: { current: number }) => (
-  <div className="steps flex items-center justify-center gap-4 mb-12">
-    {STEPS.map((s, i) => {
-      const state = i < current ? 'done' : i === current ? 'active' : 'idle';
-      return (
-        <React.Fragment key={s.id}>
-          <div className={cn(
-            "step flex items-center gap-3 transition-all",
-            state === 'active' ? "opacity-100 scale-105" : state === 'done' ? "opacity-100" : "opacity-40 grayscale"
-          )}>
+  <>
+    {/* Mobile: compact single-line indicator */}
+    <div className="flex sm:hidden items-center gap-2 justify-center mb-10">
+      <div className={cn(
+        "num h-6 w-6 rounded-full flex items-center justify-center text-[11px] font-mono font-bold border-2",
+        "bg-[var(--accent-pri)] border-[var(--accent-pri)] text-[var(--accent-pri-ink)]"
+      )}>
+        {current + 1}
+      </div>
+      <span className="text-[13px] font-bold font-display text-[var(--text-primary)]">
+        {STEPS[current]?.label}
+      </span>
+      <span className="text-[12px] text-[var(--text-muted)] font-mono">
+        {current + 1} / {STEPS.length}
+      </span>
+    </div>
+
+    {/* Desktop: full stepper */}
+    <div className="steps hidden sm:flex items-center justify-center gap-4 mb-12">
+      {STEPS.map((s, i) => {
+        const state = i < current ? 'done' : i === current ? 'active' : 'idle';
+        return (
+          <React.Fragment key={s.id}>
             <div className={cn(
-              "num h-7 w-7 rounded-full flex items-center justify-center text-[12px] font-mono font-bold border-2 transition-all",
-              state === 'done' ? "bg-[var(--green)] border-[var(--green)] text-white" : 
-              state === 'active' ? "bg-[var(--accent-pri)] border-[var(--accent-pri)] text-[var(--accent-pri-ink)]" : 
-              "bg-transparent border-[var(--border-strong)] text-[var(--text-muted)]"
+              "step flex items-center gap-3 transition-all",
+              state === 'active' ? "opacity-100 scale-105" : state === 'done' ? "opacity-100" : "opacity-40 grayscale"
             )}>
-              {state === 'done' ? <Check className="h-4 w-4" strokeWidth={3} /> : i + 1}
+              <div className={cn(
+                "num h-7 w-7 rounded-full flex items-center justify-center text-[12px] font-mono font-bold border-2 transition-all",
+                state === 'done' ? "bg-[var(--green)] border-[var(--green)] text-white" :
+                state === 'active' ? "bg-[var(--accent-pri)] border-[var(--accent-pri)] text-[var(--accent-pri-ink)]" :
+                "bg-transparent border-[var(--border-strong)] text-[var(--text-muted)]"
+              )}>
+                {state === 'done' ? <Check className="h-4 w-4" strokeWidth={3} /> : i + 1}
+              </div>
+              <span className={cn(
+                "font-display font-bold text-[14px] tracking-tight",
+                state === 'active' ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"
+              )}>{s.label}</span>
             </div>
-            <span className={cn(
-              "font-display font-bold text-[14px] tracking-tight",
-              state === 'active' ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"
-            )}>{s.label}</span>
-          </div>
-          {i < STEPS.length - 1 && (
-            <div className={cn(
-              "step-line w-12 h-0.5 rounded-full transition-all",
-              i < current ? "bg-[var(--green)]" : "bg-[var(--border-subtle)]"
-            )} />
-          )}
-        </React.Fragment>
-      );
-    })}
-  </div>
+            {i < STEPS.length - 1 && (
+              <div className={cn(
+                "step-line w-12 h-0.5 rounded-full transition-all",
+                i < current ? "bg-[var(--green)]" : "bg-[var(--border-subtle)]"
+              )} />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  </>
 );
 
 export default function NewIdeaPage() {
