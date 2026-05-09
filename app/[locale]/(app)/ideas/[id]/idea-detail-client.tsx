@@ -40,6 +40,14 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [pendingDiscard, setPendingDiscard] = React.useState(false);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [isLg, setIsLg] = React.useState(false);
+  React.useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    setIsLg(mq.matches);
+    const h = (e: MediaQueryListEvent) => setIsLg(e.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const [isContextMode, setIsContextMode] = React.useState(false);
@@ -517,16 +525,18 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
         </div>
 
         {/* Side panel — collapsible on mobile */}
-        <aside className="side-panel flex flex-col gap-4" style={{ display: 'flex' }}>
-          {/* Mobile toggle */}
-          <button
-            className="lg:hidden flex items-center justify-between w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[12px] text-[13.5px] font-bold font-display text-[var(--text-primary)]"
-            onClick={() => setSidebarOpen(o => !o)}
-          >
-            <span>Brief · Acciones · Scores</span>
-            <span className="text-[var(--text-muted)] text-[11px] font-normal font-sans">{sidebarOpen ? 'Ocultar ↑' : 'Mostrar ↓'}</span>
-          </button>
-          <div className={cn("flex-col gap-6 lg:flex", sidebarOpen ? "flex" : "hidden")}>
+        <aside style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {/* Mobile toggle — only visible below lg */}
+          {!isLg && (
+            <button
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', fontSize: '13.5px', fontWeight: 'bold', color: 'var(--text-primary)', cursor: 'pointer' }}
+              onClick={() => setSidebarOpen(o => !o)}
+            >
+              <span>Brief · Acciones · Scores</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 'normal' }}>{sidebarOpen ? 'Ocultar ↑' : 'Mostrar ↓'}</span>
+            </button>
+          )}
+          <div style={{ display: isLg || sidebarOpen ? 'flex' : 'none', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="side-card p-6 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[18px]">
             <h3 className="text-[14px] font-bold font-display flex items-center gap-2 mb-6">
               Brief editable 

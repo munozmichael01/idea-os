@@ -59,6 +59,14 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
   const [rankingMode, setRankingMode] = React.useState('composite');
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
   const [activeTab, setActiveTab] = React.useState<IdeaStatus>('ANALYZING');
+  const [isMobile, setIsMobile] = React.useState(true);
+  React.useEffect(() => {
+    const mq = window.matchMedia('(min-width: 640px)');
+    setIsMobile(!mq.matches);
+    const h = (e: MediaQueryListEvent) => setIsMobile(!e.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
 
   const RANKING_MODES = [
     { id: 'composite', label: 'Oportunidad', desc: 'Score compuesto global' },
@@ -108,14 +116,12 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
           </button>
           <button className="btn btn-secondary">
             <Sparkles className="h-[13px] w-[13px]" />
-            <span className="sm:hidden">Analizar</span>
-            <span className="hidden sm:inline">Analizar todo</span>
+            {isMobile ? 'Analizar' : 'Analizar todo'}
           </button>
           <Link href="/ideas/new">
             <button className="btn btn-primary">
               <Plus className="h-[14px] w-[14px]" strokeWidth={2.4} />
-              <span className="sm:hidden">Nueva</span>
-              <span className="hidden sm:inline">Nueva idea</span>
+              {isMobile ? 'Nueva' : 'Nueva idea'}
             </button>
           </Link>
         </div>
@@ -137,7 +143,7 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
 
       {/* Tabs */}
       {!isEmpty && (
-        <div className="mb-8" style={{ overflowX: 'auto', marginLeft: '-16px', marginRight: '-16px', paddingLeft: '16px', paddingRight: '16px' }}>
+        <div className="mb-8" style={{ overflowX: 'scroll', WebkitOverflowScrolling: 'touch' as unknown as undefined, maxWidth: '100%' }}>
           <div className="flex border-b border-[var(--border-subtle)]" style={{ minWidth: 'max-content' }}>
             <button
               className={cn("px-4 py-3 text-[13.5px] font-medium border-b-2 transition-all -mb-[1px] whitespace-nowrap", activeTab === 'ANALYZING' ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]")}

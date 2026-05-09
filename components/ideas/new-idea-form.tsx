@@ -38,6 +38,14 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState('free');
   const [isRecording, setIsRecording] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(true);
+  React.useEffect(() => {
+    const mq = window.matchMedia('(min-width: 640px)');
+    setIsMobile(!mq.matches);
+    const h = (e: MediaQueryListEvent) => setIsMobile(!e.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
   const [isTranscribing, setIsTranscribing] = React.useState(false);
   const [transcript, setTranscript] = React.useState('');
   
@@ -157,15 +165,25 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
       <h2 className="wizard-h1 text-[28px] font-bold font-display tracking-tight text-[var(--text-primary)] mb-2">¿Qué idea quieres validar?</h2>
       <p className="wizard-sub text-[14.5px] text-[var(--text-secondary)] leading-relaxed mb-8">Cuanto más contexto des, mejor el análisis. Empieza por el formato que te resulte natural.</p>
 
-      <div className="mode-tabs flex flex-col sm:grid sm:grid-cols-3 gap-2 sm:gap-3 mb-8">
+      <div
+        className="mb-8"
+        style={isMobile
+          ? { display: 'flex', flexDirection: 'column', gap: '8px' }
+          : { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }
+        }
+      >
         {MODES.map(mode => {
           const Icon = mode.icon;
           return (
             <button
               key={mode.id}
               type="button"
+              style={isMobile
+                ? { display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '12px', width: '100%', textAlign: 'left' }
+                : { display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px', padding: '16px', borderRadius: '14px', width: '100%', textAlign: 'left' }
+              }
               className={cn(
-                "mode-tab flex sm:flex-col items-center sm:items-start gap-3 sm:gap-1 p-3 sm:p-4 rounded-[12px] sm:rounded-[14px] border transition-all text-left w-full",
+                "border transition-all",
                 activeTab === mode.id
                   ? "bg-[var(--bg-elev)] border-[var(--accent-pri)] ring-1 ring-[var(--accent-pri)]"
                   : "bg-transparent border-[var(--border-subtle)] hover:border-[var(--border-active)]"
@@ -173,14 +191,14 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
               onClick={() => setActiveTab(mode.id)}
             >
               <Icon className={cn("h-4 w-4 shrink-0", activeTab === mode.id ? "text-[var(--accent-pri)]" : "text-[var(--text-muted)]")} />
-              <div className="flex flex-col gap-0.5 min-w-0">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
                 <span className={cn(
-                  "mode-title text-[13.5px] font-bold font-display tracking-tight transition-colors",
+                  "text-[13.5px] font-bold font-display tracking-tight",
                   activeTab === mode.id ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"
                 )}>
                   {mode.title}
                 </span>
-                <span className="mode-desc text-[11px] text-[var(--text-muted)] font-medium leading-none">{mode.desc}</span>
+                <span className="text-[11px] text-[var(--text-muted)] font-medium">{mode.desc}</span>
               </div>
             </button>
           );
