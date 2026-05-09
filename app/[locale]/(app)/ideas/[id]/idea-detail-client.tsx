@@ -109,7 +109,8 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const handleAnswersSubmit = async (answers: Record<string, string>) => {
     setIsContextMode(false);
     setIsAnalyzingAll(true);
-    
+    toast.info('Contexto guardado — re-lanzando análisis completo…');
+
     import('@/lib/actions/ideas')
       .then(m => m.answerContextQuestions(idea.id, answers))
       .catch((error) => {
@@ -445,15 +446,24 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
       </div>
 
       {/* Context Banner */}
-      {(!contextAnswers || Object.keys(contextAnswers).length === 0) && !isContextMode && (
+      {!isContextMode && (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 mb-8 bg-[var(--bg-elev)] border border-[var(--border-subtle)] rounded-xl">
           <div>
-            <h3 className="text-sm font-bold text-[var(--text-primary)]">Falta contexto adicional</h3>
-            <p className="text-xs text-[var(--text-secondary)]">El análisis de Economics y Founder Fit requiere más información para ser preciso.</p>
+            {contextAnswers && Object.keys(contextAnswers).length > 0 ? (
+              <>
+                <h3 className="text-sm font-bold text-[var(--text-primary)]">Contexto del fundador completado</h3>
+                <p className="text-xs text-[var(--text-secondary)]">Puedes actualizar tus respuestas y re-lanzar el análisis completo.</p>
+              </>
+            ) : (
+              <>
+                <h3 className="text-sm font-bold text-[var(--text-primary)]">Falta contexto adicional</h3>
+                <p className="text-xs text-[var(--text-secondary)]">El análisis de Economics y Founder Fit requiere más información para ser preciso.</p>
+              </>
+            )}
           </div>
-          <Button onClick={handleGenerateContext} disabled={isGeneratingContext} className="bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold px-5">
+          <Button onClick={handleGenerateContext} disabled={isGeneratingContext} className="bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold px-5 shrink-0">
             {isGeneratingContext ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
-            Completar contexto
+            {contextAnswers && Object.keys(contextAnswers).length > 0 ? 'Editar contexto' : 'Completar contexto'}
           </Button>
         </div>
       )}
