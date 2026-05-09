@@ -38,6 +38,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const [isSummarizing, setIsSummarizing] = React.useState(false);
   const [isSynthesizing, setIsSynthesizing] = React.useState(false);
   const [isPlaying, setIsPlaying] = React.useState(false);
+  const [pendingDiscard, setPendingDiscard] = React.useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const [isContextMode, setIsContextMode] = React.useState(false);
@@ -361,21 +362,39 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
                 Apostar por la idea
               </Button>
             )}
-            {idea.status !== 'DISCARDED' && (
-              <Button 
-                variant="ghost" 
+            {idea.status !== 'DISCARDED' && !pendingDiscard && (
+              <Button
+                variant="ghost"
                 className="h-10 px-5 gap-2.5 text-[var(--text-muted)] hover:text-[var(--red)] font-medium"
-                onClick={async () => {
-                  try {
-                    await import('@/lib/actions/ideas').then(m => m.updateIdea(idea.id, { status: 'DISCARDED' }));
-                    const updatedIdea = await import('@/lib/actions/ideas').then(m => m.getIdea(idea.id));
-                    setIdea(updatedIdea);
-                    toast.success('Idea descartada');
-                  } catch (e) { toast.error('Error al actualizar estado'); }
-                }}
+                onClick={() => setPendingDiscard(true)}
               >
                 Descartar
               </Button>
+            )}
+            {pendingDiscard && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[var(--red)] bg-[color-mix(in_srgb,var(--red)_8%,transparent)]">
+                <span className="text-[12.5px] text-[var(--red)] font-medium">¿Descartar esta idea?</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-3 text-[12px] text-[var(--red)] hover:bg-[color-mix(in_srgb,var(--red)_15%,transparent)] font-bold"
+                  onClick={async () => {
+                    try {
+                      await import('@/lib/actions/ideas').then(m => m.updateIdea(idea.id, { status: 'DISCARDED' }));
+                      const updatedIdea = await import('@/lib/actions/ideas').then(m => m.getIdea(idea.id));
+                      setIdea(updatedIdea);
+                      setPendingDiscard(false);
+                      toast.success('Idea descartada');
+                    } catch (e) { toast.error('Error al actualizar estado'); }
+                  }}
+                >Confirmar</Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-3 text-[12px] text-[var(--text-muted)] font-medium"
+                  onClick={() => setPendingDiscard(false)}
+                >Cancelar</Button>
+              </div>
             )}
             {idea.status !== 'ANALYZING' && (
               <Button 
