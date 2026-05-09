@@ -283,12 +283,23 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
             <h1 className="detail-title text-[48px] font-extrabold font-display leading-[0.95] tracking-tight text-[var(--text-primary)]">
               {idea.title}
             </h1>
-            <span 
-              className="priority-badge" 
+            <span
+              className="priority-badge"
               style={{ color: scoreColor(idea.compositeScore), border: '1px solid currentColor', background: `color-mix(in srgb, ${scoreColor(idea.compositeScore)} 10%, transparent)` }}
             >
               <span className="pulse" />
               {scoreLabel(idea.compositeScore)}
+            </span>
+            <span className={cn(
+              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider border",
+              idea.status === 'ANALYZING'    && "border-[var(--accent-pri)] text-[var(--accent-pri)] bg-[color-mix(in_srgb,var(--accent-pri)_10%,transparent)]",
+              idea.status === 'IMPLEMENTING' && "border-[var(--green)] text-[var(--green)] bg-[color-mix(in_srgb,var(--green)_10%,transparent)]",
+              idea.status === 'DISCARDED'    && "border-[var(--text-muted)] text-[var(--text-muted)] bg-[color-mix(in_srgb,var(--text-muted)_10%,transparent)]",
+            )}>
+              <span className="h-1.5 w-1.5 rounded-full" style={{
+                background: idea.status === 'ANALYZING' ? 'var(--accent-pri)' : idea.status === 'IMPLEMENTING' ? 'var(--green)' : 'var(--text-muted)'
+              }} />
+              {idea.status === 'ANALYZING' ? 'Analizando' : idea.status === 'IMPLEMENTING' ? 'Implementando' : 'Descartada'}
             </span>
           </div>
 
@@ -303,7 +314,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
             </span>
             <span className="tag flex items-center gap-2 px-2.5 py-1 rounded-[7px] bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[11.5px] font-medium text-[var(--text-secondary)]">
               <span className="tag-dot h-1.5 w-1.5 rounded-full bg-[var(--green)]" />
-              {idea.targetMarket || 'Sin mercado'}
+              {idea.targetMarket || 'Mercado no especificado'}
             </span>
             <span className="tag flex items-center gap-2 px-2.5 py-1 rounded-[7px] bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[11.5px] font-medium text-[var(--text-muted)]">
               v{idea.analyses?.length || 0} · {agentsDone}/{totalAgents} agentes
