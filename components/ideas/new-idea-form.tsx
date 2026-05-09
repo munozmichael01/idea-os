@@ -157,7 +157,7 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
       <h2 className="wizard-h1 text-[28px] font-bold font-display tracking-tight text-[var(--text-primary)] mb-2">¿Qué idea quieres validar?</h2>
       <p className="wizard-sub text-[14.5px] text-[var(--text-secondary)] leading-relaxed mb-8">Cuanto más contexto des, mejor el análisis. Empieza por el formato que te resulte natural.</p>
 
-      <div className="mode-tabs grid grid-cols-3 gap-2 sm:gap-3 mb-8">
+      <div className="mode-tabs flex flex-col sm:grid sm:grid-cols-3 gap-2 sm:gap-3 mb-8">
         {MODES.map(mode => {
           const Icon = mode.icon;
           return (
@@ -165,21 +165,23 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
               key={mode.id}
               type="button"
               className={cn(
-                "mode-tab flex flex-col items-start gap-1 p-3 sm:p-4 rounded-[12px] sm:rounded-[14px] border transition-all text-left min-w-0",
+                "mode-tab flex sm:flex-col items-center sm:items-start gap-3 sm:gap-1 p-3 sm:p-4 rounded-[12px] sm:rounded-[14px] border transition-all text-left w-full",
                 activeTab === mode.id
                   ? "bg-[var(--bg-elev)] border-[var(--accent-pri)] ring-1 ring-[var(--accent-pri)]"
                   : "bg-transparent border-[var(--border-subtle)] hover:border-[var(--border-active)]"
               )}
               onClick={() => setActiveTab(mode.id)}
             >
-              <span className={cn(
-                "mode-title flex items-center gap-1.5 text-[12px] sm:text-[13.5px] font-bold font-display tracking-tight transition-colors truncate w-full",
-                activeTab === mode.id ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"
-              )}>
-                <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                <span className="truncate">{mode.title}</span>
-              </span>
-              <span className="mode-desc text-[10px] sm:text-[11px] text-[var(--text-muted)] font-medium leading-none hidden sm:block">{mode.desc}</span>
+              <Icon className={cn("h-4 w-4 shrink-0", activeTab === mode.id ? "text-[var(--accent-pri)]" : "text-[var(--text-muted)]")} />
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <span className={cn(
+                  "mode-title text-[13.5px] font-bold font-display tracking-tight transition-colors",
+                  activeTab === mode.id ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"
+                )}>
+                  {mode.title}
+                </span>
+                <span className="mode-desc text-[11px] text-[var(--text-muted)] font-medium leading-none">{mode.desc}</span>
+              </div>
             </button>
           );
         })}

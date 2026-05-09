@@ -38,7 +38,7 @@ const StepBar = ({ current }: { current: number }) => (
     </div>
 
     {/* Desktop: full stepper */}
-    <div className="steps hidden sm:flex items-center justify-center gap-4 mb-12">
+    <div className="steps-desktop hidden sm:flex items-center justify-center gap-4 mb-12">
       {STEPS.map((s, i) => {
         const state = i < current ? 'done' : i === current ? 'active' : 'idle';
         return (

@@ -258,13 +258,15 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
           <Button variant="ghost" size="icon" className="h-11 w-11 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
             <Bell className="h-[15px] w-[15px]" />
           </Button>
-          <Button variant="secondary" className="hidden sm:flex h-9 px-4 gap-2 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)]" onClick={handleRunAllAgents} disabled={isAnalyzingAll}>
+          <Button variant="secondary" className="flex h-9 px-3 sm:px-4 gap-2 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)]" onClick={handleRunAllAgents} disabled={isAnalyzingAll}>
             {isAnalyzingAll ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-[13px] w-[13px]" />}
-            Analizar todo
+            <span className="sm:hidden">Analizar</span>
+            <span className="hidden sm:inline">Analizar todo</span>
           </Button>
           <Link href="/ideas/new">
             <Button className="h-9 px-3 sm:px-4 gap-2 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold">
               <Plus className="h-[14px] w-[14px]" strokeWidth={2.4} />
+              <span className="sm:hidden">Nueva</span>
               <span className="hidden sm:inline">Nueva idea</span>
             </Button>
           </Link>
@@ -283,7 +285,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
       <div className="detail-header flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
         <div className="flex-1">
           <div className="detail-title-row flex items-center gap-4 mb-3 flex-wrap">
-            <h1 className="detail-title text-[28px] sm:text-[40px] lg:text-[48px] font-extrabold font-display leading-[0.95] tracking-tight text-[var(--text-primary)]">
+            <h1 className="detail-title font-extrabold font-display leading-[0.95] tracking-tight text-[var(--text-primary)]" style={{ fontSize: 'clamp(22px, 5vw, 48px)' }}>
               {idea.title}
             </h1>
             <span
@@ -330,7 +332,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
             <span className="detail-meta-item">👤 {idea.creator?.name || 'Usuario'}</span>
           </div>
 
-          <div className="detail-actions flex flex-wrap gap-2.5">
+          <div className="detail-actions flex flex-col sm:flex-row flex-wrap gap-2.5">
             <Button className="h-10 px-5 gap-2.5 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold text-[13.5px]" onClick={handleRunAllAgents} disabled={isAnalyzingAll}>
               {isAnalyzingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               Analizar todo
@@ -366,8 +368,8 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
             )}
             {idea.status !== 'DISCARDED' && !pendingDiscard && (
               <Button
-                variant="ghost"
-                className="h-10 px-5 gap-2.5 text-[var(--text-muted)] hover:text-[var(--red)] font-medium"
+                variant="secondary"
+                className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:border-[var(--red)] hover:text-[var(--red)] font-medium"
                 onClick={() => setPendingDiscard(true)}
               >
                 Descartar
@@ -481,14 +483,14 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
       )}
 
       {/* Two-column body */}
-      <div className="detail-grid grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-12">
+      <div className="detail-grid grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-12 overflow-x-hidden">
         <div className="space-y-16">
           <div className="agents-section">
             <h2 className="section-title-lg flex items-center gap-3 text-[18px] font-bold font-display text-[var(--text-primary)] mb-8">
               Análisis por agente
               <span className="sub font-normal text-[13px] text-[var(--text-muted)] font-sans">{agentsDone} / {totalAgents} completos</span>
             </h2>
-            <div className="agents-grid grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="agents-grid grid grid-cols-1 md:grid-cols-2 gap-4 w-full min-w-0 overflow-hidden">
               <ContextAgentCard
                 summary={
                   idea.executiveSummary ??
@@ -515,7 +517,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
         </div>
 
         {/* Side panel — collapsible on mobile */}
-        <aside className="side-panel flex flex-col gap-4">
+        <aside className="side-panel flex flex-col gap-4" style={{ display: 'flex' }}>
           {/* Mobile toggle */}
           <button
             className="lg:hidden flex items-center justify-between w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[12px] text-[13.5px] font-bold font-display text-[var(--text-primary)]"
@@ -524,7 +526,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
             <span>Brief · Acciones · Scores</span>
             <span className="text-[var(--text-muted)] text-[11px] font-normal font-sans">{sidebarOpen ? 'Ocultar ↑' : 'Mostrar ↓'}</span>
           </button>
-          <div className={cn("flex flex-col gap-6", sidebarOpen ? "flex" : "hidden lg:flex")}>
+          <div className={cn("flex-col gap-6 lg:flex", sidebarOpen ? "flex" : "hidden")}>
           <div className="side-card p-6 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[18px]">
             <h3 className="text-[14px] font-bold font-display flex items-center gap-2 mb-6">
               Brief editable 

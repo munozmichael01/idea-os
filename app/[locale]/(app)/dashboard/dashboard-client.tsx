@@ -106,15 +106,16 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
           <button className="btn btn-ghost btn-icon min-w-[44px] min-h-[44px]" title="Notificaciones">
             <Bell className="h-[15px] w-[15px]" />
           </button>
-          <button className="btn btn-secondary hidden sm:flex">
+          <button className="btn btn-secondary">
             <Sparkles className="h-[13px] w-[13px]" />
-            Analizar todo
+            <span className="sm:hidden">Analizar</span>
+            <span className="hidden sm:inline">Analizar todo</span>
           </button>
           <Link href="/ideas/new">
             <button className="btn btn-primary">
               <Plus className="h-[14px] w-[14px]" strokeWidth={2.4} />
-              <span className="hidden xs:inline sm:inline">Nueva idea</span>
-              <span className="inline xs:hidden sm:hidden">Nueva</span>
+              <span className="sm:hidden">Nueva</span>
+              <span className="hidden sm:inline">Nueva idea</span>
             </button>
           </Link>
         </div>
@@ -136,8 +137,8 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
 
       {/* Tabs */}
       {!isEmpty && (
-        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 mb-8">
-          <div className="flex border-b border-[var(--border-subtle)] min-w-max sm:min-w-0">
+        <div className="mb-8" style={{ overflowX: 'auto', marginLeft: '-16px', marginRight: '-16px', paddingLeft: '16px', paddingRight: '16px' }}>
+          <div className="flex border-b border-[var(--border-subtle)]" style={{ minWidth: 'max-content' }}>
             <button
               className={cn("px-4 py-3 text-[13.5px] font-medium border-b-2 transition-all -mb-[1px] whitespace-nowrap", activeTab === 'ANALYZING' ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]")}
               onClick={() => setActiveTab('ANALYZING')}
@@ -194,14 +195,15 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
       {/* Ranking bar */}
       {!isTabEmpty && !isEmpty && (
         <>
-          <div className="section-head flex items-center justify-between mb-4">
-            <h2 className="text-[15px] font-bold font-display flex items-center gap-2">
-              Ranking de ideas 
+          <div className="section-head flex items-center justify-between mb-4 gap-2">
+            <h2 className="text-[15px] font-bold font-display flex items-center gap-2 shrink-0">
+              <span className="hidden sm:inline">Ranking de ideas</span>
+              <span className="sm:hidden">Ranking</span>
               <span className="count px-2 py-0.5 rounded-[5px] border border-[var(--border-subtle)] bg-[var(--bg-card)] text-[11px] font-normal text-[var(--text-muted)] font-mono">
                 {sortedIdeas.length}
               </span>
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <Button variant="secondary" size="sm" className="h-8 gap-1.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)]">
                 <Filter className="h-3 w-3" />
                 Filtros

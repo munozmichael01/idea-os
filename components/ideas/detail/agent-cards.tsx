@@ -55,7 +55,7 @@ export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze 
 
   if (isEmpty) {
     return (
-      <article className="agent-card empty-agent group" style={{ '--accent': accent } as React.CSSProperties}>
+      <article className="agent-card empty-agent group w-full min-w-0" style={{ '--accent': accent } as React.CSSProperties}>
         <div className="accent-bar" />
         <div className="agent-empty-icon flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--bg-elev)] border border-[var(--border-subtle)] text-[var(--text-muted)] group-hover:text-[var(--accent-pri)] transition-colors">
           <Sparkles className="h-4 w-4" />
@@ -81,7 +81,7 @@ export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze 
   }
 
   return (
-    <article className={cn("agent-card relative", isLoading && "loading")} style={{ '--accent': accent } as React.CSSProperties}>
+    <article className={cn("agent-card relative w-full min-w-0", isLoading && "loading")} style={{ '--accent': accent } as React.CSSProperties}>
       <div className="accent-bar" />
       {isLoading && <div className="top-bar absolute top-0 left-0 right-0 h-0.5 bg-[var(--accent)] animate-pulse" />}
 
@@ -179,7 +179,7 @@ interface ContextAgentCardProps {
 
 export function ContextAgentCard({ summary, isAnalyzing, onAnalyze }: ContextAgentCardProps) {
   return (
-    <article className={cn("agent-card relative", isAnalyzing && "loading")} style={{ '--accent': 'var(--purple)' } as React.CSSProperties}>
+    <article className={cn("agent-card relative w-full min-w-0", isAnalyzing && "loading")} style={{ '--accent': 'var(--purple)' } as React.CSSProperties}>
       <div className="accent-bar" />
       <div className="agent-head flex justify-between items-start mb-4">
         <div className="agent-meta">
