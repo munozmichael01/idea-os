@@ -103,17 +103,18 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
           <span className="kbd">⌘K</span>
         </div>
         <div className="topbar-actions">
-          <button className="btn btn-ghost btn-icon" title="Notificaciones">
+          <button className="btn btn-ghost btn-icon min-w-[44px] min-h-[44px]" title="Notificaciones">
             <Bell className="h-[15px] w-[15px]" />
           </button>
-          <button className="btn btn-secondary">
+          <button className="btn btn-secondary hidden sm:flex">
             <Sparkles className="h-[13px] w-[13px]" />
             Analizar todo
           </button>
           <Link href="/ideas/new">
             <button className="btn btn-primary">
               <Plus className="h-[14px] w-[14px]" strokeWidth={2.4} />
-              Nueva idea
+              <span className="hidden xs:inline sm:inline">Nueva idea</span>
+              <span className="inline xs:hidden sm:hidden">Nueva</span>
             </button>
           </Link>
         </div>
@@ -135,25 +136,27 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
 
       {/* Tabs */}
       {!isEmpty && (
-        <div className="flex border-b border-[var(--border-subtle)] mb-8">
-          <button 
-            className={cn("px-4 py-3 text-[13.5px] font-medium border-b-2 transition-all -mb-[1px]", activeTab === 'ANALYZING' ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]")} 
-            onClick={() => setActiveTab('ANALYZING')}
-          >
-            Analizando ({initialIdeas.filter(i => i.status === 'ANALYZING').length})
-          </button>
-          <button 
-            className={cn("px-4 py-3 text-[13.5px] font-medium border-b-2 transition-all -mb-[1px]", activeTab === 'IMPLEMENTING' ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]")} 
-            onClick={() => setActiveTab('IMPLEMENTING')}
-          >
-            Implementando ({initialIdeas.filter(i => i.status === 'IMPLEMENTING').length})
-          </button>
-          <button 
-            className={cn("px-4 py-3 text-[13.5px] font-medium border-b-2 transition-all -mb-[1px]", activeTab === 'DISCARDED' ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]")} 
-            onClick={() => setActiveTab('DISCARDED')}
-          >
-            Descartadas ({initialIdeas.filter(i => i.status === 'DISCARDED').length})
-          </button>
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 mb-8">
+          <div className="flex border-b border-[var(--border-subtle)] min-w-max sm:min-w-0">
+            <button
+              className={cn("px-4 py-3 text-[13.5px] font-medium border-b-2 transition-all -mb-[1px] whitespace-nowrap", activeTab === 'ANALYZING' ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]")}
+              onClick={() => setActiveTab('ANALYZING')}
+            >
+              Analizando ({initialIdeas.filter(i => i.status === 'ANALYZING').length})
+            </button>
+            <button
+              className={cn("px-4 py-3 text-[13.5px] font-medium border-b-2 transition-all -mb-[1px] whitespace-nowrap", activeTab === 'IMPLEMENTING' ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]")}
+              onClick={() => setActiveTab('IMPLEMENTING')}
+            >
+              Implementando ({initialIdeas.filter(i => i.status === 'IMPLEMENTING').length})
+            </button>
+            <button
+              className={cn("px-4 py-3 text-[13.5px] font-medium border-b-2 transition-all -mb-[1px] whitespace-nowrap", activeTab === 'DISCARDED' ? "border-[var(--text-primary)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]")}
+              onClick={() => setActiveTab('DISCARDED')}
+            >
+              Descartadas ({initialIdeas.filter(i => i.status === 'DISCARDED').length})
+            </button>
+          </div>
         </div>
       )}
 
@@ -296,11 +299,13 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
               { color: 'var(--purple)', text: <>Agente <strong>Go-to-market</strong> generó nueva hipótesis para <strong>{sortedIdeas[1]?.title || 'Idea'}</strong></>, time: 'hace 14m' },
               { color: 'var(--blue)', text: <><strong>{sortedIdeas[2]?.title || 'Idea'}</strong> · Founder Fit reanalizado tras editar el contexto</>, time: 'hace 1h' },
             ].map((row, i) => (
-              <div key={i} className="activity-row grid grid-cols-[auto_1fr_auto_auto] items-center gap-3.5 px-3.5 py-2.5 rounded-[8px] transition-all hover:bg-[var(--bg-elev)] text-[13px]">
-                <span className="activity-icon h-1.5 w-1.5 rounded-full" style={{ background: row.color }} />
-                <span className="activity-text text-[var(--text-secondary)]">{row.text}</span>
-                <Button variant="ghost" className="h-auto py-1 px-2 text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">Ver</Button>
-                <span className="activity-time font-mono text-[11px] text-[var(--text-muted)]">{row.time}</span>
+              <div key={i} className="activity-row flex items-start sm:items-center gap-3 px-3 sm:px-3.5 py-2.5 rounded-[8px] transition-all hover:bg-[var(--bg-elev)] text-[13px]">
+                <span className="activity-icon h-1.5 w-1.5 rounded-full mt-1.5 sm:mt-0 shrink-0" style={{ background: row.color }} />
+                <span className="activity-text text-[var(--text-secondary)] flex-1 min-w-0">{row.text}</span>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Button variant="ghost" className="h-auto py-1 px-2 text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">Ver</Button>
+                  <span className="activity-time font-mono text-[11px] text-[var(--text-muted)] hidden sm:inline">{row.time}</span>
+                </div>
               </div>
             ))}
           </div>

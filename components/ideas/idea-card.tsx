@@ -43,21 +43,18 @@ export function IdeaCard({ idea, delay = 0 }: IdeaCardProps) {
           <ScoreRing value={idea.compositeScore} size={64} stroke={4} animateDelay={delay} />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-          <span className="priority-badge" style={{ color, border: '1px solid currentColor', background: `color-mix(in srgb, ${color} 10%, transparent)` }}>
+        <div className="flex flex-wrap justify-between items-center gap-2 min-w-0">
+          <span className="priority-badge shrink-0" style={{ color, border: '1px solid currentColor', background: `color-mix(in srgb, ${color} 10%, transparent)` }}>
             <span className="pulse" />
             {scoreLabel(idea.compositeScore)}
           </span>
-          
-          <div className="agents-progress">
+
+          <div className="agents-progress shrink-0">
             <div className="agent-dots">
               {Array.from({ length: totalAgents }).map((_, i) => (
-                <div 
-                  key={i} 
-                  className={cn(
-                    "agent-dot", 
-                    i < agentsDone ? "done" : "idle"
-                  )} 
+                <div
+                  key={i}
+                  className={cn("agent-dot", i < agentsDone ? "done" : "idle")}
                 />
               ))}
             </div>
