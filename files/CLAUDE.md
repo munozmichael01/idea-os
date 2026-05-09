@@ -55,6 +55,8 @@ lib/supabase/client.ts         ← cliente Supabase browser-side
 
 ## Archivos de Gemini CLI (solo leer, nunca modificar)
 
+NOTA TEMPORAL (hasta que Gemini CLI vuelva): Claude Code tiene permiso de lectura y escritura sobre estos archivos.
+
 ```
 app/(app)/dashboard/
 app/(app)/ideas/[id]/page.tsx
