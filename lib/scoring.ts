@@ -48,13 +48,11 @@ export function computeConfidenceScore(hypotheses: Hypothesis[]): number {
 
 // ─── Volatility score ─────────────────────────────────────────────────────────
 
-/** 0-1: weight of critical unvalidated hypotheses over total critical hypotheses */
+/** 0-1: ratio of unvalidated hypotheses over total — drops as the founder validates */
 export function computeVolatilityScore(hypotheses: Hypothesis[]): number {
-  const critical = hypotheses.filter((h) => h.criticality === 'high')
-  if (critical.length === 0) return 0
-
-  const unvalidated = critical.filter((h) => h.status === 'unvalidated').length
-  return Math.round((unvalidated / critical.length) * 100) / 100
+  if (hypotheses.length === 0) return 0
+  const unvalidated = hypotheses.filter((h) => h.status === 'unvalidated').length
+  return Math.round((unvalidated / hypotheses.length) * 100) / 100
 }
 
 // ─── Re-analysis selector ─────────────────────────────────────────────────────

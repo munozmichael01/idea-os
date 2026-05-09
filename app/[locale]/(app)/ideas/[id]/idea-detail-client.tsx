@@ -212,14 +212,17 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   if (isAnalyzingAll) {
     return (
       <div className="main min-h-svh flex items-center justify-center p-4">
-        <AnalysisProgress 
-          ideaId={idea.id} 
+        <AnalysisProgress
+          ideaId={idea.id}
+          ideaTitle={idea.title}
+          ideaSector={idea.sector ?? undefined}
+          ideaTargetMarket={idea.targetMarket ?? undefined}
           onViewResults={async () => {
             setIsAnalyzingAll(false);
             const updatedIdea = await import('@/lib/actions/ideas').then((m) => m.getIdea(idea.id));
             setIdea(updatedIdea);
             toast.success('Análisis completo finalizado');
-          }} 
+          }}
           onBack={() => setIsAnalyzingAll(false)}
         />
       </div>

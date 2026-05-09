@@ -10,6 +10,9 @@ import { useRouter } from '@/navigation';
 
 interface AnalysisProgressProps {
   ideaId: string;
+  ideaTitle?: string;
+  ideaSector?: string;
+  ideaTargetMarket?: string;
   onViewResults: () => void;
   onBack?: () => void;
 }
@@ -22,13 +25,17 @@ const AGENTS: { id: AgentType, name: string, short: string, color: string }[] = 
   { id: 'founder_fit', name: 'Founder Fit', short: 'FIT', color: 'var(--blue)' },
 ];
 
-const THOUGHTS: Record<string, string[]> = {
-  market:  ['Calculando TAM/SAM en SoEU', 'Cruzando INE × SEPE × Idealista', 'Tasa de captación residencial 2024-26', 'Demanda real vs declarada'],
-  competition:    ['Mapeando players UE/US', 'Compass · Witei · Sooprema', 'Riesgo plataformización Idealista', 'Buscando moats defendibles'],
-  economics:    ['Modelando ARPU €490/mes', 'CAC payback ~6 meses', 'Curva de churn vertical SaaS', 'Sensibilidad a precio'],
-  gtm:     ['Mapa de canales · SIMA mayo', 'Wedge: valoración predictiva', 'Outbound · LinkedIn × eventos', 'Loop viral por API'],
-  founder_fit:     ['Cruce founder × tesis', '7 años en proptech', 'Red activa SIMA + top-50', 'Gap: CTO ML senior'],
-};
+function buildThoughts(sector?: string, targetMarket?: string): Record<string, string[]> {
+  const dom = sector || 'el sector';
+  const mkt = targetMarket || 'el mercado objetivo';
+  return {
+    market:       [`Calculando TAM/SAM para ${dom}`, `Analizando tendencias en ${mkt}`, 'Buscando benchmarks de crecimiento', 'Evaluando timing de entrada al mercado'],
+    competition:  [`Mapeando competidores en ${dom}`, `Analizando players en ${mkt}`, 'Evaluando riesgo de plataformización', 'Buscando moats defendibles'],
+    economics:    ['Modelando estructura de ingresos', 'Estimando CAC y LTV', 'Calculando curva de churn', 'Sensibilidad al precio y márgenes'],
+    gtm:          [`Canales de adquisición para ${mkt}`, 'Perfil del early adopter', 'Estrategia de precio y posicionamiento', 'Métricas de product-market fit'],
+    founder_fit:  ['Cruzando perfil fundador × oportunidad', `Experiencia relevante en ${dom}`, 'Evaluando red de contactos del sector', 'Identificando gaps de ejecución'],
+  };
+}
 
 // 5 agents, evenly spaced 72° apart
 const AGENT_POSITIONS = [
@@ -44,11 +51,13 @@ const polar = (cx: number, cy: number, r: number, angleDeg: number): [number, nu
   return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
 };
 
-export function AnalysisProgress({ ideaId, onViewResults, onBack }: AnalysisProgressProps) {
+export function AnalysisProgress({ ideaId, ideaTitle, ideaSector, ideaTargetMarket, onViewResults, onBack }: AnalysisProgressProps) {
   const [tick, setTick] = React.useState(0);
   const [logLines, setLogLines] = React.useState<{ id: number; agent: any; msg: string; ts: number }[]>([]);
   const [celebrate, setCelebrate] = React.useState(false);
+  const [realScore, setRealScore] = React.useState<number | null>(null);
   const router = useRouter();
+  const THOUGHTS = buildThoughts(ideaSector, ideaTargetMarket);
 
   React.useEffect(() => {
     // TODO: Reemplazar este setInterval simulado con el estado real de tu backend (Websockets/SSE)
@@ -71,14 +80,17 @@ export function AnalysisProgress({ ideaId, onViewResults, onBack }: AnalysisProg
   const doneCount = tiles.filter(t => t.status === 'done').length;
   const allDone = doneCount === tiles.length;
 
-  // Trigger one-shot celebrate when all done
+  // Trigger one-shot celebrate + fetch real score when all done
   React.useEffect(() => {
     if (allDone && !celebrate) {
       const id = setTimeout(() => setCelebrate(true), 250);
+      import('@/lib/actions/ideas').then(m => m.getIdea(ideaId)).then(idea => {
+        setRealScore(idea.compositeScore ?? null);
+      }).catch(() => {});
       return () => clearTimeout(id);
     }
     return undefined;
-  }, [allDone, celebrate]);
+  }, [allDone, celebrate, ideaId]);
 
   // Append a log line every couple ticks from a running agent
   React.useEffect(() => {
@@ -273,7 +285,7 @@ export function AnalysisProgress({ ideaId, onViewResults, onBack }: AnalysisProg
       {allDone && (
         <div className="analyze-success">
           <div className="success-left">
-            <ScoreRing value={8.4} size={92} stroke={5} />
+            <ScoreRing value={realScore ?? 0} size={92} stroke={5} />
             <div className="success-meta">
               <span className="kicker">Score compuesto generado</span>
               <h3 className="success-title">Idea sólida, lista para validar.</h3>

@@ -60,6 +60,7 @@ export default function NewIdeaPage() {
   const [questions, setQuestions] = React.useState<{ id: string; text: string }[]>([]);
   const [userId, setUserId] = React.useState<string | null>(null);
   const [workspaceId, setWorkspaceId] = React.useState<string | null>(null);
+  const [ideaMeta, setIdeaMeta] = React.useState<{ title?: string; sector?: string; targetMarket?: string }>({});
   const router = useRouter();
 
   React.useEffect(() => {
@@ -95,6 +96,7 @@ export default function NewIdeaPage() {
         workspaceId,
       });
       setIdeaId(idea.id);
+      setIdeaMeta({ title: data.title, sector: data.sector, targetMarket: data.targetMarket });
       
       const contextOutput = await runContextAgentForIdea(idea.id);
       setQuestions(contextOutput.questions.map(q => ({ id: q.id, text: q.question })));
@@ -168,9 +170,12 @@ export default function NewIdeaPage() {
         )}
 
         {currentStep === 2 && ideaId && (
-          <AnalysisProgress 
-            ideaId={ideaId} 
-            onViewResults={() => router.push(`/ideas/${ideaId}`)} 
+          <AnalysisProgress
+            ideaId={ideaId}
+            ideaTitle={ideaMeta.title}
+            ideaSector={ideaMeta.sector}
+            ideaTargetMarket={ideaMeta.targetMarket}
+            onViewResults={() => router.push(`/ideas/${ideaId}`)}
           />
         )}
       </div>
