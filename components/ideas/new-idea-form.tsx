@@ -321,8 +321,8 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
               disabled={isSubmitting || isRecording || isTranscribing}
             >
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Continuar
-              <ChevronRight className="h-4 w-4" strokeWidth={2.4} />
+              {isSubmitting ? 'Generando preguntas de contexto…' : 'Continuar'}
+              {!isSubmitting && <ChevronRight className="h-4 w-4" strokeWidth={2.4} />}
             </Button>
           </div>
         </div>
