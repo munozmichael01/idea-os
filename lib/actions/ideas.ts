@@ -313,6 +313,17 @@ export async function answerContextQuestions(
   await runAllAgents(ideaId)
 }
 
+// ─── getRecentIdeas ───────────────────────────────────────────────────────────
+
+export async function getRecentIdeas(userId: string, limit = 5): Promise<{ id: string; title: string; compositeScore: number | null }[]> {
+  return prisma.idea.findMany({
+    where: { createdBy: userId },
+    orderBy: { updatedAt: 'desc' },
+    take: limit,
+    select: { id: true, title: true, compositeScore: true },
+  })
+}
+
 // ─── getIdea ──────────────────────────────────────────────────────────────────
 
 export async function getIdea(ideaId: string): Promise<IdeaFull> {

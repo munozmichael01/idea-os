@@ -6,15 +6,20 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
+import { getCurrentUser } from '@/lib/actions/auth';
+import { getRecentIdeas } from '@/lib/actions/ideas';
 
-export default function AppLayout({
+export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getCurrentUser();
+  const recentIdeas = user ? await getRecentIdeas(user.id, 5) : [];
+
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar recentIdeas={recentIdeas} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />

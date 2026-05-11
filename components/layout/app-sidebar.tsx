@@ -31,13 +31,18 @@ import {
 import { cn } from '@/lib/utils';
 import { getCurrentUser } from '@/lib/actions/auth';
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  recentIdeas?: { id: string; title: string; compositeScore: number | null }[];
+}
+
+export function AppSidebar({ recentIdeas = [] }: AppSidebarProps) {
   const t = useTranslations('Common');
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const { state, toggleSidebar } = useSidebar();
+  const { state, toggleSidebar, isMobile, setOpenMobile } = useSidebar();
+  const handleNavClick = () => { if (isMobile) setOpenMobile(false); };
   const isCollapsed = state === 'collapsed';
 
   const [user, setUser] = React.useState<{ name: string; email: string } | null>(null);
@@ -82,11 +87,7 @@ export function AppSidebar() {
     },
   ];
 
-  const recentIdeas = [
-    { id: '1', title: 'Inmogrowth', color: 'var(--green)' },
-    { id: '2', title: 'Real State Pro', color: 'var(--yellow)' },
-    { id: '3', title: 'Cold-DM Loop', color: 'var(--orange)' },
-  ];
+  const SCORE_COLORS = ['var(--green)', 'var(--accent-pri)', 'var(--yellow)', 'var(--orange)', 'var(--purple)'];
 
   return (
     <Sidebar collapsible="icon" className="border-r border-[var(--border-subtle)] bg-[var(--bg-base)]">
@@ -132,7 +133,7 @@ export function AppSidebar() {
                       pathname === item.url ? "bg-[var(--bg-elev)] text-[var(--text-primary)]" : "text-[var(--text-secondary)]"
                     )}
                   >
-                    <Link href={item.url}>
+                    <Link href={item.url} onClick={handleNavClick}>
                       <item.icon className="h-[18px] w-[18px]" />
                       <span className="text-[13.5px]">{item.title}</span>
                     </Link>
@@ -150,16 +151,20 @@ export function AppSidebar() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-1">
-                {recentIdeas.map((idea) => (
+                {recentIdeas.length === 0 ? (
+                  <p className="px-2 py-1 text-[12px] text-[var(--text-muted)] italic">Sin ideas recientes</p>
+                ) : recentIdeas.map((idea, i) => (
                   <SidebarMenuItem key={idea.id}>
-                    <SidebarMenuButton className="h-10 rounded-[10px] px-3 text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]">
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="h-1.5 w-1.5 rounded-full flex-shrink-0" 
-                          style={{ backgroundColor: idea.color }}
-                        />
-                        <span className="text-[13.5px]">{idea.title}</span>
-                      </div>
+                    <SidebarMenuButton
+                      asChild
+                      className="h-10 rounded-[10px] px-3 text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                    >
+                      <Link href={`/ideas/${idea.id}`} onClick={handleNavClick}>
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: SCORE_COLORS[i % SCORE_COLORS.length] }} />
+                          <span className="text-[13.5px] truncate">{idea.title}</span>
+                        </div>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

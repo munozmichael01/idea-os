@@ -516,7 +516,13 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               Análisis por agente
               <span className="sub font-normal text-[13px] text-[var(--text-muted)] font-sans">{agentsDone} / {totalAgents} completos</span>
             </h2>
-            <div className="agents-grid grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden" style={{ minWidth: 0, width: '100%' }}>
+            <div
+              className="agents-grid overflow-hidden"
+              style={isLg
+                ? { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '14px', minWidth: 0, width: '100%' }
+                : { display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '14px', minWidth: 0, width: '100%' }
+              }
+            >
               <ContextAgentCard
                 summary={
                   idea.executiveSummary ??
