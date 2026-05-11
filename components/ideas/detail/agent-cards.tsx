@@ -48,6 +48,14 @@ const AGENT_METADATA: Record<AgentType, { name: string, short: string, role: str
 };
 
 export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze }: AgentAnalysisCardProps) {
+  const [isMobile, setIsMobile] = React.useState(true);
+  React.useEffect(() => {
+    const mq = window.matchMedia('(min-width: 640px)');
+    setIsMobile(!mq.matches);
+    const h = (e: MediaQueryListEvent) => setIsMobile(!e.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
   const metadata = AGENT_METADATA[agentType];
   const isLoading = isAnalyzing;
   const isEmpty = !analysis && !isLoading;
@@ -55,7 +63,7 @@ export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze 
 
   if (isEmpty) {
     return (
-      <article className="agent-card empty-agent group w-full" style={{ '--accent': accent, width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box' } as React.CSSProperties}>
+      <article className="agent-card empty-agent group w-full" style={{ '--accent': accent, width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box', ...(isMobile && { padding: '16px' }) } as React.CSSProperties}>
         <div className="accent-bar" />
         <div className="agent-empty-icon flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--bg-elev)] border border-[var(--border-subtle)] text-[var(--text-muted)] group-hover:text-[var(--accent-pri)] transition-colors">
           <Sparkles className="h-4 w-4" />
@@ -81,7 +89,7 @@ export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze 
   }
 
   return (
-    <article className={cn("agent-card relative w-full", isLoading && "loading")} style={{ '--accent': accent, width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box' } as React.CSSProperties}>
+    <article className={cn("agent-card relative w-full", isLoading && "loading")} style={{ '--accent': accent, width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box', ...(isMobile && { padding: '16px' }) } as React.CSSProperties}>
       <div className="accent-bar" />
       {isLoading && <div className="top-bar absolute top-0 left-0 right-0 h-0.5 bg-[var(--accent)] animate-pulse" />}
 
@@ -178,8 +186,16 @@ interface ContextAgentCardProps {
 }
 
 export function ContextAgentCard({ summary, isAnalyzing, onAnalyze }: ContextAgentCardProps) {
+  const [isMobile, setIsMobile] = React.useState(true);
+  React.useEffect(() => {
+    const mq = window.matchMedia('(min-width: 640px)');
+    setIsMobile(!mq.matches);
+    const h = (e: MediaQueryListEvent) => setIsMobile(!e.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
   return (
-    <article className={cn("agent-card relative w-full", isAnalyzing && "loading")} style={{ '--accent': 'var(--purple)', width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box' } as React.CSSProperties}>
+    <article className={cn("agent-card relative w-full", isAnalyzing && "loading")} style={{ '--accent': 'var(--purple)', width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box', ...(isMobile && { padding: '16px' }) } as React.CSSProperties}>
       <div className="accent-bar" />
       <div className="agent-head flex justify-between items-start mb-4">
         <div className="agent-meta">

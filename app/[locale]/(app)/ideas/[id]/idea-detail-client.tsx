@@ -290,7 +290,13 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
       </div>
 
       {/* Header */}
-      <div className="detail-header flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
+      <div
+        className="detail-header justify-between gap-8 mb-12"
+        style={isLg
+          ? { display: 'flex', flexDirection: 'row', alignItems: 'center' }
+          : { display: 'flex', flexDirection: 'column' }
+        }
+      >
         <div className="flex-1">
           <div className="detail-title-row flex items-center gap-4 mb-3 flex-wrap">
             <h1 className="detail-title font-extrabold font-display leading-[0.95] tracking-tight text-[var(--text-primary)]" style={{ fontSize: 'clamp(22px, 5vw, 48px)' }}>
@@ -504,13 +510,13 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
           : { display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)' }
         }
       >
-        <div className="space-y-16">
-          <div className="agents-section">
+        <div className="space-y-16" style={{ minWidth: 0 }}>
+          <div className="agents-section" style={{ minWidth: 0 }}>
             <h2 className="section-title-lg flex items-center gap-3 text-[18px] font-bold font-display text-[var(--text-primary)] mb-8">
               Análisis por agente
               <span className="sub font-normal text-[13px] text-[var(--text-muted)] font-sans">{agentsDone} / {totalAgents} completos</span>
             </h2>
-            <div className="agents-grid grid grid-cols-1 md:grid-cols-2 gap-4 w-full min-w-0 overflow-hidden">
+            <div className="agents-grid grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden" style={{ minWidth: 0, width: '100%' }}>
               <ContextAgentCard
                 summary={
                   idea.executiveSummary ??
