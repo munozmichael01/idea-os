@@ -89,17 +89,17 @@ export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze 
         <div className="agent-meta">
           <div className="agent-tag flex items-center gap-2 mb-1">
             <span className="agent-dot h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-            <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--text-muted)]">{metadata.short}</span>
+            <span className="font-mono text-[11px] uppercase tracking-widest text-[var(--text-muted)]">{metadata.short}</span>
           </div>
           <div className="agent-name font-display font-bold text-[18px] text-[var(--text-primary)] leading-none mb-1">{metadata.name}</div>
-          <div className="agent-role text-[11px] font-medium text-[var(--text-muted)] uppercase tracking-wide">{metadata.role}</div>
+          <div className="agent-role text-[12px] font-medium text-[var(--text-muted)] uppercase tracking-wide">{metadata.role}</div>
         </div>
         {analysis && (
           <ScoreRing value={analysis.score} size={48} stroke={3.5} showMax={false} />
         )}
       </div>
 
-      <p className="agent-headline text-[13.5px] font-bold text-[var(--text-primary)] leading-snug mb-5">
+      <p className="agent-headline text-[15px] font-bold text-[var(--text-primary)] leading-snug mb-5">
         {isLoading ? "Analizando propuesta de valor..." : analysis?.headline}
       </p>
 
@@ -107,10 +107,10 @@ export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze 
         <div className="flex flex-col gap-5">
           {analysis.strengths?.length > 0 && (
             <div className="agent-list flex flex-col gap-2">
-              <div className="agent-list-title font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--text-muted)]">Fortalezas</div>
+              <div className="agent-list-title font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--text-muted)]">Fortalezas</div>
               <div className="flex flex-col gap-1.5">
                 {analysis.strengths.slice(0, 3).map((s, i) => (
-                  <div key={i} className="agent-li check flex items-start gap-2 text-[12.5px] text-[var(--text-secondary)]">
+                  <div key={i} className="agent-li check flex items-start gap-2 text-[14px] text-[var(--text-secondary)]">
                     <span className="marker mt-1 flex-shrink-0">
                       <Check className="h-3 w-3 text-[var(--green)]" strokeWidth={3} />
                     </span>
@@ -123,10 +123,10 @@ export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze 
 
           {analysis.risks?.length > 0 && (
             <div className="agent-list flex flex-col gap-2">
-              <div className="agent-list-title font-mono text-[9px] uppercase tracking-[0.15em] text-[var(--text-muted)]">Riesgos</div>
+              <div className="agent-list-title font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--text-muted)]">Riesgos</div>
               <div className="flex flex-col gap-1.5">
                 {analysis.risks.slice(0, 3).map((r, i) => (
-                  <div key={i} className="agent-li flex items-start gap-2 text-[12.5px] text-[var(--orange)]">
+                  <div key={i} className="agent-li flex items-start gap-2 text-[14px] text-[var(--orange)]">
                     <span className="marker h-1 w-1 rounded-full bg-[var(--orange)] mt-2 flex-shrink-0" />
                     <span className="text-[var(--text-secondary)]">{r}</span>
                   </div>
@@ -137,8 +137,8 @@ export function AgentAnalysisCard({ agentType, analysis, isAnalyzing, onAnalyze 
 
           {analysis.recommendation && (
             <div className="agent-rec p-3 rounded-[10px] bg-[var(--bg-elev)] border border-[var(--border-subtle)]">
-              <div className="agent-rec-label font-mono text-[9px] uppercase tracking-wider text-[var(--text-muted)] mb-1">Recomendación</div>
-              <div className="agent-rec-text text-[12px] leading-relaxed text-[var(--text-primary)]">{analysis.recommendation}</div>
+              <div className="agent-rec-label font-mono text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1">Recomendación</div>
+              <div className="agent-rec-text text-[13px] leading-relaxed text-[var(--text-primary)]">{analysis.recommendation}</div>
             </div>
           )}
         </div>
