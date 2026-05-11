@@ -1,6 +1,18 @@
 'use client';
 
 import * as React from 'react';
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState(true);
+  React.useEffect(() => {
+    const mq = window.matchMedia('(min-width: 640px)');
+    setIsMobile(!mq.matches);
+    const h = (e: MediaQueryListEvent) => setIsMobile(!e.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
+  return isMobile;
+}
 import { Hypothesis, AgentType } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Check, HelpCircle, XCircle } from 'lucide-react';
@@ -26,16 +38,21 @@ const AGENT_COLORS: Record<AgentType, string> = {
 };
 
 function HypothesisCard({ h }: { h: Hypothesis }) {
+  const isMobile = useIsMobile();
   const accent = AGENT_COLORS[h.agentType as AgentType] || 'var(--text-muted)';
   const statusClass = h.status === 'confirmed' ? 'confirmed' : h.status === 'invalidated' ? 'invalidated' : 'pending';
 
   return (
     <div
       className="hyp bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[12px] transition-all hover:border-[var(--border-active)] mb-2"
-      style={{ '--accent': accent, padding: '12px 14px' } as React.CSSProperties}
+      style={{
+        '--accent': accent,
+        padding: '12px 14px',
+        ...(isMobile && { display: 'flex', flexDirection: 'column', gap: '8px' }),
+      } as React.CSSProperties}
     >
       {/* Tags row — always on top */}
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-2">
         <span className="agent-stamp flex-shrink-0 px-1.5 py-0.5 rounded-[4px] bg-[var(--bg-elev)] border border-[var(--border-subtle)] font-mono text-[9px] font-bold text-[var(--accent)]">
           {AGENT_SHORT[h.agentType as AgentType] || '??'}
         </span>

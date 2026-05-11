@@ -2349,7 +2349,8 @@ html { overflow-x: hidden; }
 .success-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
 
-/* ===== MOBILE PADDING — last rule wins over all flat rules above ===== */
+/* ===== MOBILE OVERRIDES — last rule wins over all flat rules above ===== */
 @media (max-width: 640px) {
   .main { padding: 12px 14px 32px !important; }
+  .hyp { display: flex !important; flex-direction: column !important; gap: 8px !important; }
 }
