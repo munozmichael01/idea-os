@@ -39,7 +39,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const [isSynthesizing, setIsSynthesizing] = React.useState(false);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [pendingDiscard, setPendingDiscard] = React.useState(false);
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [isLg, setIsLg] = React.useState(false);
   React.useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)');
@@ -428,7 +428,13 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
         </div>
 
         {/* Score panel */}
-        <div className="score-panel flex flex-col items-center gap-6 p-6 sm:p-8 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[20px] sm:rounded-[24px] w-full lg:w-[320px]">
+        <div
+          className="score-panel flex flex-col items-center gap-6 bg-[var(--bg-card)] border border-[var(--border-subtle)]"
+          style={isLg
+            ? { width: '320px', padding: '2rem', borderRadius: '24px' }
+            : { width: '100%', maxWidth: '100%', padding: '1.5rem', borderRadius: '20px' }
+          }
+        >
           <ScoreRing value={idea.compositeScore} size={110} stroke={8} />
           <div className="score-panel-meta w-full">
             <div className="score-meta-label text-center text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-[0.2em] mb-4">Score compuesto</div>
@@ -491,7 +497,13 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
       )}
 
       {/* Two-column body */}
-      <div className="detail-grid grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-12 overflow-x-hidden">
+      <div
+        className="detail-grid gap-12 overflow-x-hidden"
+        style={isLg
+          ? { display: 'grid', gridTemplateColumns: '1fr 340px' }
+          : { display: 'grid', gridTemplateColumns: '1fr' }
+        }
+      >
         <div className="space-y-16">
           <div className="agents-section">
             <h2 className="section-title-lg flex items-center gap-3 text-[18px] font-bold font-display text-[var(--text-primary)] mb-8">
