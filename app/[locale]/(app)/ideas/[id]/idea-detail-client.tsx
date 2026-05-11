@@ -432,7 +432,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
           className="score-panel flex flex-col items-center gap-6 bg-[var(--bg-card)] border border-[var(--border-subtle)]"
           style={isLg
             ? { width: '320px', padding: '2rem', borderRadius: '24px' }
-            : { width: '100%', maxWidth: '100%', padding: '1.5rem', borderRadius: '20px' }
+            : { width: '100%', maxWidth: '100%', minWidth: 0, padding: '1.5rem', borderRadius: '20px' }
           }
         >
           <ScoreRing value={idea.compositeScore} size={110} stroke={8} />
@@ -501,7 +501,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
         className="detail-grid gap-12 overflow-x-hidden"
         style={isLg
           ? { display: 'grid', gridTemplateColumns: '1fr 340px' }
-          : { display: 'grid', gridTemplateColumns: '1fr' }
+          : { display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)' }
         }
       >
         <div className="space-y-16">
