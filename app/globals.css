@@ -2344,3 +2344,9 @@ html { overflow-x: hidden; }
   max-width: 56ch;
 }
 .success-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+
+/* ===== MOBILE PADDING — last rule wins over all flat rules above ===== */
+@media (max-width: 640px) {
+  .main { padding: 12px 14px 32px !important; }
+}

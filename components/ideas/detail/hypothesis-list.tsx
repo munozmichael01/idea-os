@@ -28,23 +28,30 @@ const AGENT_COLORS: Record<AgentType, string> = {
 function HypothesisCard({ h }: { h: Hypothesis }) {
   const accent = AGENT_COLORS[h.agentType as AgentType] || 'var(--text-muted)';
   const statusClass = h.status === 'confirmed' ? 'confirmed' : h.status === 'invalidated' ? 'invalidated' : 'pending';
-  
+
   return (
-    <div className={cn("hyp flex items-start gap-3 p-3.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[12px] transition-all hover:border-[var(--border-active)] mb-2")} style={{ '--accent': accent } as React.CSSProperties}>
-      <span className="agent-stamp flex-shrink-0 px-1.5 py-0.5 rounded-[4px] bg-[var(--bg-elev)] border border-[var(--border-subtle)] font-mono text-[9px] font-bold text-[var(--accent)]">
-        {AGENT_SHORT[h.agentType as AgentType] || '??'}
-      </span>
-      <p className="text-[13px] text-[var(--text-primary)] leading-relaxed flex-1">{h.description}</p>
-      <span className={cn(
-        "hyp-status flex items-center gap-1.5 px-2 py-0.5 rounded-full font-mono text-[9px] uppercase tracking-wider font-bold shrink-0 mt-0.5",
-        statusClass === 'confirmed' ? "bg-[rgba(22,168,110,0.1)] text-[var(--green)]" : 
-        statusClass === 'invalidated' ? "bg-[rgba(216,56,56,0.1)] text-[var(--red)]" : 
-        "bg-[var(--bg-elev)] text-[var(--text-muted)] border border-[var(--border-subtle)]"
-      )}>
-        {statusClass === 'confirmed' && <Check className="h-2.5 w-2.5" strokeWidth={3} />}
-        {statusClass === 'invalidated' && <XCircle className="h-2.5 w-2.5" strokeWidth={3} />}
-        {h.status}
-      </span>
+    <div
+      className="hyp bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[12px] transition-all hover:border-[var(--border-active)] mb-2"
+      style={{ '--accent': accent, padding: '12px 14px' } as React.CSSProperties}
+    >
+      {/* Tags row — always on top */}
+      <div className="flex items-center gap-2 mb-2">
+        <span className="agent-stamp flex-shrink-0 px-1.5 py-0.5 rounded-[4px] bg-[var(--bg-elev)] border border-[var(--border-subtle)] font-mono text-[9px] font-bold text-[var(--accent)]">
+          {AGENT_SHORT[h.agentType as AgentType] || '??'}
+        </span>
+        <span className={cn(
+          "hyp-status flex items-center gap-1.5 px-2 py-0.5 rounded-full font-mono text-[9px] uppercase tracking-wider font-bold",
+          statusClass === 'confirmed' ? "bg-[rgba(22,168,110,0.1)] text-[var(--green)]" :
+          statusClass === 'invalidated' ? "bg-[rgba(216,56,56,0.1)] text-[var(--red)]" :
+          "bg-[var(--bg-elev)] text-[var(--text-muted)] border border-[var(--border-subtle)]"
+        )}>
+          {statusClass === 'confirmed' && <Check className="h-2.5 w-2.5" strokeWidth={3} />}
+          {statusClass === 'invalidated' && <XCircle className="h-2.5 w-2.5" strokeWidth={3} />}
+          {h.status}
+        </span>
+      </div>
+      {/* Description — full width */}
+      <p className="text-[14px] text-[var(--text-primary)] leading-relaxed">{h.description}</p>
     </div>
   );
 }

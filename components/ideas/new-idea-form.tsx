@@ -161,7 +161,7 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
   ];
 
   return (
-    <div className="wizard-card w-full max-w-[680px] mx-auto p-5 sm:p-10 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[16px] sm:rounded-[24px]">
+    <div className="wizard-card w-full max-w-[680px] mx-auto p-4 sm:p-10 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[16px] sm:rounded-[24px]">
       <h2 className="wizard-h1 text-[28px] font-bold font-display tracking-tight text-[var(--text-primary)] mb-2">¿Qué idea quieres validar?</h2>
       <p className="wizard-sub text-[14.5px] text-[var(--text-secondary)] leading-relaxed mb-8">Cuanto más contexto des, mejor el análisis. Empieza por el formato que te resulte natural.</p>
 

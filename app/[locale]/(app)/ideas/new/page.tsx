@@ -172,7 +172,7 @@ export default function NewIdeaPage() {
         <span className="text-[var(--text-primary)] font-medium">Nueva idea</span>
       </div>
 
-      <div className="wizard max-w-4xl mx-auto px-4 sm:px-6">
+      <div className="wizard max-w-4xl mx-auto">
         <StepBar current={currentStep} />
         
         {currentStep === 0 && (
