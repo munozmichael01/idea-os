@@ -22,7 +22,7 @@ import {
 import { Link } from '@/navigation';
 import { toast } from 'sonner';
 import { IdeaFull, AgentType, IdeaField, ContextAnswers, Analysis } from '@/lib/types';
-import { updateIdea, runAgentForIdea, runAllAgents, runContextAgentForIdea, runSynthesisAgentForIdea } from '@/lib/actions/ideas';
+import { updateIdea, runAgentForIdea, runAllAgents, runContextAgentForIdea, runSynthesisAgentForIdea, exportIdea } from '@/lib/actions/ideas';
 import { ScoreRing, scoreColor, scoreLabel, scoreBg } from '@/components/ui/score-ring';
 import { cn } from '@/lib/utils';
 
@@ -39,6 +39,8 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const [isSynthesizing, setIsSynthesizing] = React.useState(false);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [pendingDiscard, setPendingDiscard] = React.useState(false);
+  const [exportOpen, setExportOpen] = React.useState(false);
+  const [isExporting, setIsExporting] = React.useState(false);
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [isLg, setIsLg] = React.useState(false);
   React.useEffect(() => {
@@ -141,6 +143,26 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
       toast.error('Error al generar el resumen');
     } finally {
       setIsSummarizing(false);
+    }
+  };
+
+  const handleExport = async (format: 'pdf' | 'docx') => {
+    setIsExporting(true);
+    try {
+      const result = await exportIdea(idea.id, idea.createdBy, format);
+      const link = document.createElement('a');
+      link.href = result.url;
+      link.download = `${idea.title}.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`Exportado como ${format.toUpperCase()}`);
+      setExportOpen(false);
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Error al exportar');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -360,7 +382,11 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               {isSynthesizing ? <Loader2 className="h-4 w-4 animate-spin" /> : (isPlaying ? <Square className="h-4 w-4 text-[var(--red)]" /> : <Volume2 className="h-4 w-4" />)}
               {isPlaying ? 'Detener resumen' : 'Escuchar resumen'}
             </Button>
-            <Button variant="secondary" className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)] font-medium">
+            <Button
+              variant="secondary"
+              className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--border-active)] hover:text-[var(--text-primary)] font-medium"
+              onClick={() => setExportOpen(true)}
+            >
               <FileText className="h-4 w-4" />
               Exportar
             </Button>
@@ -659,6 +685,53 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
           </div>{/* end collapsible wrapper */}
         </aside>
       </div>
+
+      {/* Export modal */}
+      {exportOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={() => !isExporting && setExportOpen(false)}
+        >
+          <div
+            className="bg-[var(--bg-elev)] border border-[var(--border-subtle)] rounded-[20px] p-8 w-full max-w-[380px] flex flex-col gap-5"
+            onClick={e => e.stopPropagation()}
+          >
+            <div>
+              <h2 className="text-[18px] font-bold font-display text-[var(--text-primary)] mb-1">Exportar idea</h2>
+              <p className="text-[13px] text-[var(--text-muted)]">Elige el formato. El archivo se descargará automáticamente.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => handleExport('pdf')}
+                disabled={isExporting}
+                className="flex flex-col items-center gap-3 p-5 rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-[var(--accent-pri)] transition-all disabled:opacity-50 cursor-pointer"
+              >
+                {isExporting ? <Loader2 className="h-6 w-6 animate-spin text-[var(--accent-pri)]" /> : <FileText className="h-6 w-6 text-[var(--red)]" />}
+                <span className="text-[13px] font-semibold text-[var(--text-primary)]">PDF</span>
+                <span className="text-[11px] text-[var(--text-muted)]">Para imprimir o compartir</span>
+              </button>
+              <button
+                onClick={() => handleExport('docx')}
+                disabled={isExporting}
+                className="flex flex-col items-center gap-3 p-5 rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-[var(--accent-pri)] transition-all disabled:opacity-50 cursor-pointer"
+              >
+                {isExporting ? <Loader2 className="h-6 w-6 animate-spin text-[var(--accent-pri)]" /> : <FileText className="h-6 w-6 text-[var(--blue)]" />}
+                <span className="text-[13px] font-semibold text-[var(--text-primary)]">DOCX</span>
+                <span className="text-[11px] text-[var(--text-muted)]">Para editar en Word</span>
+              </button>
+            </div>
+            <Button
+              variant="ghost"
+              className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              onClick={() => setExportOpen(false)}
+              disabled={isExporting}
+            >
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

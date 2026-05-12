@@ -4,17 +4,17 @@ import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { IdeaCard } from '@/components/ideas/idea-card';
 import { Idea } from '@/lib/types';
-import { 
-  Search, 
-  Bell, 
-  Sparkles, 
-  Plus, 
-  Filter, 
-  LayoutGrid, 
-  List, 
-  Lightbulb, 
-  TrendingUp, 
-  Rocket, 
+import {
+  Search,
+  Bell,
+  Sparkles,
+  Plus,
+  Filter,
+  LayoutGrid,
+  List,
+  Lightbulb,
+  TrendingUp,
+  Rocket,
   Clock,
   ArrowUp,
   ArrowDown,
@@ -25,6 +25,11 @@ import { Link } from '@/navigation';
 import { cn } from '@/lib/utils';
 import { IdeaWithAnalyses } from '@/lib/types';
 import { IdeaStatus } from '@prisma/client';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface DashboardClientProps {
   initialIdeas: IdeaWithAnalyses[];
@@ -59,7 +64,13 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
   const [rankingMode, setRankingMode] = React.useState('composite');
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
   const [activeTab, setActiveTab] = React.useState<IdeaStatus>('ANALYZING');
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [filtersOpen, setFiltersOpen] = React.useState(false);
+  const [filterSectors, setFilterSectors] = React.useState<string[]>([]);
+  const [filterModels, setFilterModels] = React.useState<string[]>([]);
+  const [filterMinScore, setFilterMinScore] = React.useState(0);
   const [isMobile, setIsMobile] = React.useState(true);
+
   React.useEffect(() => {
     const mq = window.matchMedia('(min-width: 640px)');
     setIsMobile(!mq.matches);
@@ -67,6 +78,36 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
     mq.addEventListener('change', h);
     return () => mq.removeEventListener('change', h);
   }, []);
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem('idea-os-view-mode');
+    if (saved === 'list' || saved === 'grid') setViewMode(saved);
+  }, []);
+
+  const handleViewModeChange = (mode: 'grid' | 'list') => {
+    setViewMode(mode);
+    localStorage.setItem('idea-os-view-mode', mode);
+  };
+
+  const availableSectors = React.useMemo(
+    () => [...new Set(initialIdeas.map(i => i.sector).filter(Boolean))] as string[],
+    [initialIdeas]
+  );
+  const availableModels = React.useMemo(
+    () => [...new Set(initialIdeas.map(i => i.businessModel).filter(Boolean))] as string[],
+    [initialIdeas]
+  );
+  const activeFiltersCount = filterSectors.length + filterModels.length + (filterMinScore > 0 ? 1 : 0);
+
+  const clearFilters = () => {
+    setFilterSectors([]);
+    setFilterModels([]);
+    setFilterMinScore(0);
+  };
+
+  const toggleFilter = (list: string[], setList: (v: string[]) => void, value: string) => {
+    setList(list.includes(value) ? list.filter(v => v !== value) : [...list, value]);
+  };
 
   const RANKING_MODES = [
     { id: 'composite', label: 'Oportunidad', desc: 'Score compuesto global' },
@@ -78,6 +119,23 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
 
   const sortedIdeas = React.useMemo(() => {
     let list = initialIdeas.filter(i => i.status === activeTab);
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(i =>
+        i.title.toLowerCase().includes(q) ||
+        (i.sector?.toLowerCase().includes(q)) ||
+        (i.description?.toLowerCase().includes(q))
+      );
+    }
+    if (filterSectors.length > 0) {
+      list = list.filter(i => i.sector && filterSectors.includes(i.sector));
+    }
+    if (filterModels.length > 0) {
+      list = list.filter(i => i.businessModel && filterModels.includes(i.businessModel));
+    }
+    if (filterMinScore > 0) {
+      list = list.filter(i => (i.compositeScore || 0) >= filterMinScore);
+    }
     switch (rankingMode) {
       case 'viable':
         list.sort((a, b) => (b.confidenceScore || 0) - (a.confidenceScore || 0));
@@ -89,7 +147,7 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
         list.sort((a, b) => (b.compositeScore || 0) - (a.compositeScore || 0));
     }
     return list;
-  }, [initialIdeas, rankingMode, activeTab]);
+  }, [initialIdeas, rankingMode, activeTab, searchQuery, filterSectors, filterModels, filterMinScore]);
 
   const isEmpty = sortedIdeas.length === 0 && initialIdeas.length === 0;
   const isTabEmpty = sortedIdeas.length === 0;
@@ -107,13 +165,29 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
       <div className="topbar">
         <div className="search">
           <Search className="h-3.5 w-3.5 text-[var(--text-muted)]" />
-          <input placeholder="Buscar ideas, sectores, hipótesis…" />
-          <span className="kbd">⌘K</span>
+          <input
+            placeholder="Buscar ideas, sectores, hipótesis…"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+          {searchQuery ? (
+            <button onClick={() => setSearchQuery('')} style={{ color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer' }}>✕</button>
+          ) : (
+            <span className="kbd">⌘K</span>
+          )}
         </div>
         <div className="topbar-actions">
-          <button className="btn btn-ghost btn-icon min-w-[44px] min-h-[44px]" title="Notificaciones">
-            <Bell className="h-[15px] w-[15px]" />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="btn btn-ghost btn-icon min-w-[44px] min-h-[44px]" title="Notificaciones">
+                <Bell className="h-[15px] w-[15px]" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64 p-4 bg-[var(--bg-elev)] border border-[var(--border-subtle)] rounded-[12px] shadow-lg">
+              <p className="text-[11px] font-mono uppercase tracking-wider text-[var(--text-muted)] mb-3">Notificaciones</p>
+              <p className="text-[13px] text-[var(--text-muted)] text-center py-4 italic">Sin notificaciones nuevas</p>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <button className="btn btn-secondary">
             <Sparkles className="h-[13px] w-[13px]" />
             {isMobile ? 'Analizar' : 'Analizar todo'}
@@ -210,19 +284,29 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
               </span>
             </h2>
             <div className="flex items-center gap-2 shrink-0">
-              <Button variant="secondary" size="sm" className="h-8 gap-1.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)]">
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-8 gap-1.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] relative"
+                onClick={() => setFiltersOpen(true)}
+              >
                 <Filter className="h-3 w-3" />
                 Filtros
+                {activeFiltersCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] text-[9px] font-bold flex items-center justify-center">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </Button>
               <div className="view-toggle flex bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[8px] p-1">
-                <button 
-                  onClick={() => setViewMode('grid')}
+                <button
+                  onClick={() => handleViewModeChange('grid')}
                   className={cn("p-1.5 rounded-[5px] transition-all", viewMode === 'grid' ? "bg-[var(--bg-elev)] text-[var(--text-primary)]" : "text-[var(--text-muted)]")}
                 >
                   <LayoutGrid className="h-3.5 w-3.5" />
                 </button>
-                <button 
-                  onClick={() => setViewMode('list')}
+                <button
+                  onClick={() => handleViewModeChange('list')}
                   className={cn("p-1.5 rounded-[5px] transition-all", viewMode === 'list' ? "bg-[var(--bg-elev)] text-[var(--text-primary)]" : "text-[var(--text-muted)]")}
                 >
                   <List className="h-3.5 w-3.5" />
@@ -277,7 +361,14 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
         </div>
       ) : isTabEmpty ? (
         <div className="empty border border-dashed border-[var(--border-subtle)] rounded-[16px] py-16 px-8 text-center flex flex-col items-center gap-4">
-          <p className="text-[14px] text-[var(--text-secondary)]">No hay ideas en este estado.</p>
+          {searchQuery ? (
+            <>
+              <p className="text-[14px] text-[var(--text-secondary)]">Sin resultados para &ldquo;{searchQuery}&rdquo;.</p>
+              <button onClick={() => setSearchQuery('')} className="text-[13px] text-[var(--accent-pri)] hover:underline">Limpiar búsqueda</button>
+            </>
+          ) : (
+            <p className="text-[14px] text-[var(--text-secondary)]">No hay ideas en este estado.</p>
+          )}
         </div>
       ) : (
         <div className={cn(
@@ -318,6 +409,140 @@ export function DashboardClient({ initialIdeas }: DashboardClientProps) {
             ))}
           </div>
         </>
+      )}
+
+      {/* Filters drawer */}
+      {filtersOpen && (
+        <div
+          className="fixed inset-0 z-50 flex justify-end"
+          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)' }}
+          onClick={() => setFiltersOpen(false)}
+        >
+          <div
+            className="h-full w-full max-w-[340px] flex flex-col bg-[var(--bg-elev)] border-l border-[var(--border-subtle)] overflow-y-auto"
+            style={{ padding: '28px 24px' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-[16px] font-bold font-display text-[var(--text-primary)]">Filtros</h2>
+              <div className="flex items-center gap-2">
+                {activeFiltersCount > 0 && (
+                  <button
+                    onClick={clearFilters}
+                    className="text-[12px] text-[var(--accent-pri)] hover:underline font-medium"
+                  >
+                    Limpiar ({activeFiltersCount})
+                  </button>
+                )}
+                <button
+                  onClick={() => setFiltersOpen(false)}
+                  className="h-8 w-8 flex items-center justify-center rounded-[8px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] transition-all text-[16px]"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Sector */}
+            {availableSectors.length > 0 && (
+              <div className="mb-6">
+                <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-[var(--text-muted)] mb-3">Sector</p>
+                <div className="flex flex-col gap-1.5">
+                  {availableSectors.map(sector => (
+                    <label key={sector} className="flex items-center gap-3 px-3 py-2.5 rounded-[8px] cursor-pointer hover:bg-[var(--bg-card)] transition-all">
+                      <span
+                        className="h-4 w-4 rounded-[4px] border flex items-center justify-center flex-shrink-0 transition-all"
+                        style={{
+                          borderColor: filterSectors.includes(sector) ? 'var(--accent-pri)' : 'var(--border-subtle)',
+                          background: filterSectors.includes(sector) ? 'var(--accent-pri)' : 'transparent',
+                        }}
+                        onClick={() => toggleFilter(filterSectors, setFilterSectors, sector)}
+                      >
+                        {filterSectors.includes(sector) && <span style={{ color: 'var(--accent-pri-ink)', fontSize: '10px', fontWeight: 'bold' }}>✓</span>}
+                      </span>
+                      <span
+                        className="text-[13px] text-[var(--text-secondary)] flex-1"
+                        onClick={() => toggleFilter(filterSectors, setFilterSectors, sector)}
+                      >
+                        {sector}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Business model */}
+            {availableModels.length > 0 && (
+              <div className="mb-6">
+                <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-[var(--text-muted)] mb-3">Modelo de negocio</p>
+                <div className="flex flex-col gap-1.5">
+                  {availableModels.map(model => (
+                    <label key={model} className="flex items-center gap-3 px-3 py-2.5 rounded-[8px] cursor-pointer hover:bg-[var(--bg-card)] transition-all">
+                      <span
+                        className="h-4 w-4 rounded-[4px] border flex items-center justify-center flex-shrink-0 transition-all"
+                        style={{
+                          borderColor: filterModels.includes(model) ? 'var(--accent-pri)' : 'var(--border-subtle)',
+                          background: filterModels.includes(model) ? 'var(--accent-pri)' : 'transparent',
+                        }}
+                        onClick={() => toggleFilter(filterModels, setFilterModels, model)}
+                      >
+                        {filterModels.includes(model) && <span style={{ color: 'var(--accent-pri-ink)', fontSize: '10px', fontWeight: 'bold' }}>✓</span>}
+                      </span>
+                      <span
+                        className="text-[13px] text-[var(--text-secondary)] flex-1"
+                        onClick={() => toggleFilter(filterModels, setFilterModels, model)}
+                      >
+                        {model}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Min score */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-[var(--text-muted)]">Score mínimo</p>
+                <span className="text-[12px] font-mono font-bold text-[var(--text-primary)]">
+                  {filterMinScore > 0 ? `${filterMinScore}+` : 'Todos'}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={9}
+                step={1}
+                value={filterMinScore}
+                onChange={e => setFilterMinScore(Number(e.target.value))}
+                className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+                style={{ accentColor: 'var(--accent-pri)', background: `linear-gradient(to right, var(--accent-pri) ${filterMinScore * 100 / 9}%, var(--bg-card) ${filterMinScore * 100 / 9}%)` }}
+              />
+              <div className="flex justify-between mt-1.5">
+                {[0, 3, 5, 7, 9].map(v => (
+                  <span key={v} className="text-[10px] font-mono text-[var(--text-muted)]">{v}</span>
+                ))}
+              </div>
+            </div>
+
+            {availableSectors.length === 0 && availableModels.length === 0 && filterMinScore === 0 && (
+              <p className="text-[13px] text-[var(--text-muted)] italic text-center py-8">
+                Crea ideas con sector y modelo de negocio para poder filtrar.
+              </p>
+            )}
+
+            <div className="mt-auto pt-4">
+              <Button
+                className="w-full h-10 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold"
+                onClick={() => setFiltersOpen(false)}
+              >
+                Ver {sortedIdeas.length} resultado{sortedIdeas.length !== 1 ? 's' : ''}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
