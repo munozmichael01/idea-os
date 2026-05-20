@@ -5,6 +5,12 @@ export const contextAgent = {
   model: 'claude-haiku-4-5-20251001',
 
   buildPrompt(idea: Idea): string {
+    const missingFields = [
+      !idea.sector && 'sector',
+      !idea.targetMarket && 'targetMarket',
+      !idea.businessModel && 'businessModel',
+    ].filter(Boolean)
+
     return `Eres un asistente experto en validación de ideas de negocio. Tu tarea es analizar la siguiente idea y generar contexto estructurado para que otros agentes especializados la evalúen con mayor precisión.
 
 IDEA:
@@ -19,6 +25,11 @@ Tu respuesta debe ser ÚNICAMENTE el siguiente JSON, sin texto adicional, sin bl
 
 {
   "summary": "Resumen estructurado de la idea en 2-3 oraciones que capture el problema, la solución y el mercado objetivo",
+  "inferredFields": {
+    "sector": ${!idea.sector ? '"<sector inferido de la descripción, o null si no se puede determinar>"' : 'null'},
+    "targetMarket": ${!idea.targetMarket ? '"<mercado objetivo inferido, o null si no se puede determinar>"' : 'null'},
+    "businessModel": ${!idea.businessModel ? '"<modelo de negocio inferido (ej: SaaS, marketplace, D2C, freemium), o null>"' : 'null'}
+  },
   "questions": [
     {
       "id": "q1",
@@ -29,6 +40,8 @@ Tu respuesta debe ser ÚNICAMENTE el siguiente JSON, sin texto adicional, sin bl
 }
 
 Reglas:
+- En inferredFields, infiere únicamente los campos marcados arriba; los demás déjalos como null
+${missingFields.length > 0 ? `- Campos a inferir: ${missingFields.join(', ')}` : '- Todos los campos estructurados ya están completos; pon null en todos los inferredFields'}
 - Genera entre 3 y 5 preguntas clarificadoras
 - Cada pregunta debe ser específica, accionable y orientada a reducir incertidumbre
 - Los agentes disponibles son: "market", "competition", "economics", "gtm", "founder_fit"

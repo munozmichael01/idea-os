@@ -14,8 +14,16 @@ function sleep(ms: number) {
 }
 
 function extractJson<T>(text: string): T {
-  const cleaned = text.replace(/^```(?:json)?\s*/m, '').replace(/\s*```$/m, '').trim()
-  return JSON.parse(cleaned) as T
+  const start = text.indexOf('{')
+  if (start === -1) throw new Error('No JSON object found in response')
+  let depth = 0
+  let end = -1
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === '{') depth++
+    else if (text[i] === '}' && --depth === 0) { end = i; break }
+  }
+  if (end === -1) throw new Error('Malformed JSON: unbalanced braces')
+  return JSON.parse(text.slice(start, end + 1)) as T
 }
 
 function extractText(response: Message): string {
@@ -46,7 +54,7 @@ export async function runContextAgent(idea: Idea): Promise<ContextOutput> {
 
     const response = await anthropic.messages.create({
       model: contextAgent.model,
-      max_tokens: 1024,
+      max_tokens: 2048,
       messages: [{ role: 'user', content: prompt }],
     })
 

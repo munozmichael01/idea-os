@@ -202,11 +202,20 @@ export async function runContextAgentForIdea(ideaId: string): Promise<ContextOut
   const idea = await prisma.idea.findUniqueOrThrow({ where: { id: ideaId } })
   const output = await runContextAgent(idea)
 
+  const inferredData: Record<string, string> = {}
+  const f = output.inferredFields
+  if (f) {
+    if (!idea.sector && f.sector) inferredData.sector = f.sector
+    if (!idea.targetMarket && f.targetMarket) inferredData.targetMarket = f.targetMarket
+    if (!idea.businessModel && f.businessModel) inferredData.businessModel = f.businessModel
+  }
+
   await prisma.idea.update({
     where: { id: ideaId },
     data: {
       contextSummary: output.summary,
       contextQuestions: JSON.parse(JSON.stringify(output.questions)),
+      ...inferredData,
     },
   })
 
@@ -252,6 +261,16 @@ export async function runAgentForIdea(ideaId: string, agentType: AgentType): Pro
   const contextAnswers = idea.contextAnswers as ContextAnswers | null
 
   const inputHash = computeInputHash(idea, agentDef.affectedBy)
+
+  const existingAnalysis = await prisma.analysis.findFirst({
+    where: { ideaId, agentType },
+    orderBy: { createdAt: 'desc' },
+  })
+  if (existingAnalysis?.inputHash === inputHash) {
+    revalidatePath(`/ideas/${ideaId}`)
+    return
+  }
+
   const output = await runAgent(agentDef, idea, contextAnswers ?? undefined)
 
   await prisma.analysis.create({

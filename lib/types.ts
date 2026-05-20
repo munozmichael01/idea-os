@@ -76,8 +76,15 @@ export interface ContextQuestion {
   affectedAgents: AgentType[]
 }
 
+export interface InferredFields {
+  sector?: string | null
+  targetMarket?: string | null
+  businessModel?: string | null
+}
+
 export interface ContextOutput {
   summary: string
+  inferredFields?: InferredFields
   questions: ContextQuestion[]
 }
 
