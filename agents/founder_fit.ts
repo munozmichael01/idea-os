@@ -1,4 +1,5 @@
-import type { AgentDefinition, ContextAnswers, ContextQuestion, Idea } from '@/lib/types'
+import { buildContextBlock } from '@/lib/agents/shared'
+import type { AgentDefinition, ContextAnswers, Idea } from '@/lib/types'
 
 export const agent: AgentDefinition = {
   id: 'founder_fit',
@@ -9,7 +10,11 @@ export const agent: AgentDefinition = {
   affectedBy: ['description', 'notes'],
 
   buildPrompt(idea: Idea, contextAnswers?: ContextAnswers): string {
-    const context = buildContextBlock(idea, contextAnswers)
+    const context = buildContextBlock(
+      idea,
+      contextAnswers,
+      'PERFIL DEL FUNDADOR (respuestas directas del fundador — tratar como hechos, no inferencias):'
+    )
     const hasContext = contextAnswers && Object.keys(contextAnswers).length > 0
     const contextWarning = hasContext
       ? ''
@@ -39,32 +44,4 @@ Tu respuesta debe ser ÚNICAMENTE el siguiente JSON, sin texto adicional, sin bl
   "next_validation_action": "<cómo validar el fit con el mercado esta semana>"
 }`
   },
-}
-
-function buildContextBlock(idea: Idea, contextAnswers?: ContextAnswers): string {
-  const lines = [
-    `IDEA: ${idea.title}`,
-    `Descripción: ${idea.description}`,
-    idea.sector ? `Sector: ${idea.sector}` : null,
-    idea.targetMarket ? `Mercado objetivo: ${idea.targetMarket}` : null,
-    idea.businessModel ? `Modelo de negocio: ${idea.businessModel}` : null,
-    idea.notes ? `Notas: ${idea.notes}` : null,
-  ].filter(Boolean)
-
-  if (contextAnswers && Object.keys(contextAnswers).length > 0) {
-    const storedQuestions = (idea.contextQuestions as ContextQuestion[] | null) ?? []
-    const questionMap = new Map(storedQuestions.map((q) => [q.id, q.question]))
-    lines.push('\nPERFIL DEL FUNDADOR (respuestas directas del fundador — tratar como hechos, no inferencias):')
-    for (const [questionId, answer] of Object.entries(contextAnswers)) {
-      const questionText = questionMap.get(questionId)
-      if (questionText) {
-        lines.push(`P: ${questionText}`)
-        lines.push(`R: ${answer}`)
-      } else {
-        lines.push(`- ${answer}`)
-      }
-    }
-  }
-
-  return lines.join('\n')
 }
