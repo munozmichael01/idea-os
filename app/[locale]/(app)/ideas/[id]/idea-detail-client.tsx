@@ -22,7 +22,7 @@ import {
 import { Link } from '@/navigation';
 import { toast } from 'sonner';
 import { IdeaFull, AgentType, IdeaField, ContextAnswers, Analysis } from '@/lib/types';
-import { updateIdea, runAgentForIdea, runAllAgents, runContextAgentForIdea, runSynthesisAgentForIdea, exportIdea } from '@/lib/actions/ideas';
+import { updateIdea, runAgentForIdea, runAllAgents, runContextAgentForIdea, runSynthesisAgentForIdea, exportIdea, getIdea } from '@/lib/actions/ideas';
 import { ScoreRing, scoreColor, scoreLabel, scoreBg } from '@/components/ui/score-ring';
 import { cn } from '@/lib/utils';
 
