@@ -120,6 +120,8 @@ model Idea {
   businessModel   String?    @map("business_model")
   notes           String?
   contextAnswers   Json?      @map("context_answers")
+  contextQuestions Json?      @map("context_questions")
+  contextSummary   String?    @map("context_summary")
   executiveSummary String?    @map("executive_summary")
   compositeScore   Float?     @map("composite_score")
   confidenceScore Float?     @map("confidence_score")

@@ -1,4 +1,4 @@
-import type { AgentDefinition, ContextAnswers, Idea } from '@/lib/types'
+import type { AgentDefinition, ContextAnswers, ContextQuestion, Idea } from '@/lib/types'
 
 export const agent: AgentDefinition = {
   id: 'founder_fit',
@@ -52,9 +52,17 @@ function buildContextBlock(idea: Idea, contextAnswers?: ContextAnswers): string 
   ].filter(Boolean)
 
   if (contextAnswers && Object.keys(contextAnswers).length > 0) {
+    const storedQuestions = (idea.contextQuestions as ContextQuestion[] | null) ?? []
+    const questionMap = new Map(storedQuestions.map((q) => [q.id, q.question]))
     lines.push('\nPERFIL DEL FUNDADOR (respuestas directas del fundador — tratar como hechos, no inferencias):')
-    for (const [, answer] of Object.entries(contextAnswers)) {
-      lines.push(`- ${answer}`)
+    for (const [questionId, answer] of Object.entries(contextAnswers)) {
+      const questionText = questionMap.get(questionId)
+      if (questionText) {
+        lines.push(`P: ${questionText}`)
+        lines.push(`R: ${answer}`)
+      } else {
+        lines.push(`- ${answer}`)
+      }
     }
   }
 

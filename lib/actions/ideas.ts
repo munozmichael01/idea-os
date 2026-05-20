@@ -11,6 +11,9 @@ import {
   computeVolatilityScore,
   getAffectedAgents,
 } from '@/lib/scoring'
+import {
+  HypothesisStatus,
+} from '@/lib/types'
 import type {
   AgentDefinition,
   AgentType,
@@ -128,10 +131,10 @@ export async function updateIdea(
     const agentDefs = await getAllAgentDefinitions()
     const contextAnswers = idea.contextAnswers as ContextAnswers | null
 
-    await Promise.all(
+    const settledResults = await Promise.allSettled(
       affectedAgentTypes.map(async (agentType) => {
         const agentDef = agentDefs[agentType]
-        if (!agentDef) return
+        if (!agentDef) return null
         const newHash = computeInputHash(idea, agentDef.affectedBy)
 
         const existingAnalysis = await prisma.analysis.findFirst({
@@ -139,7 +142,7 @@ export async function updateIdea(
           orderBy: { createdAt: 'desc' },
         })
 
-        if (existingAnalysis?.inputHash === newHash) return
+        if (existingAnalysis?.inputHash === newHash) return null
 
         const output = await runAgent(agentDef, idea, contextAnswers ?? undefined)
 
@@ -160,6 +163,10 @@ export async function updateIdea(
           },
         })
 
+        await prisma.hypothesis.deleteMany({
+          where: { ideaId, agentType, status: HypothesisStatus.unvalidated },
+        })
+
         await prisma.hypothesis.createMany({
           data: output.hypotheses.map((description) => ({
             ideaId,
@@ -168,9 +175,17 @@ export async function updateIdea(
           })),
         })
 
-        reanalyzedAgents.push(agentType)
+        return agentType
       })
     )
+
+    for (const result of settledResults) {
+      if (result.status === 'fulfilled' && result.value) {
+        reanalyzedAgents.push(result.value)
+      } else if (result.status === 'rejected') {
+        console.error('[updateIdea] Agent failed:', result.reason)
+      }
+    }
 
     if (reanalyzedAgents.length > 0) {
       await refreshScores(ideaId)
@@ -186,6 +201,15 @@ export async function updateIdea(
 export async function runContextAgentForIdea(ideaId: string): Promise<ContextOutput> {
   const idea = await prisma.idea.findUniqueOrThrow({ where: { id: ideaId } })
   const output = await runContextAgent(idea)
+
+  await prisma.idea.update({
+    where: { id: ideaId },
+    data: {
+      contextSummary: output.summary,
+      contextQuestions: JSON.parse(JSON.stringify(output.questions)),
+    },
+  })
+
   revalidatePath(`/ideas/${ideaId}`)
   return output
 }
@@ -247,6 +271,10 @@ export async function runAgentForIdea(ideaId: string, agentType: AgentType): Pro
     },
   })
 
+  await prisma.hypothesis.deleteMany({
+    where: { ideaId, agentType, status: HypothesisStatus.unvalidated },
+  })
+
   await prisma.hypothesis.createMany({
     data: output.hypotheses.map((description) => ({ ideaId, agentType, description })),
   })
@@ -262,7 +290,7 @@ export async function runAllAgents(ideaId: string): Promise<void> {
   const agentDefs = await getAllAgentDefinitions()
   const contextAnswers = idea.contextAnswers as ContextAnswers | null
 
-  await Promise.all(
+  const results = await Promise.allSettled(
     (Object.values(agentDefs) as AgentDefinition[]).map(async (agentDef) => {
       const inputHash = computeInputHash(idea, agentDef.affectedBy)
       const output = await runAgent(agentDef, idea, contextAnswers ?? undefined)
@@ -284,6 +312,10 @@ export async function runAllAgents(ideaId: string): Promise<void> {
         },
       })
 
+      await prisma.hypothesis.deleteMany({
+        where: { ideaId, agentType: agentDef.id, status: HypothesisStatus.unvalidated },
+      })
+
       await prisma.hypothesis.createMany({
         data: output.hypotheses.map((description) => ({
           ideaId,
@@ -293,6 +325,11 @@ export async function runAllAgents(ideaId: string): Promise<void> {
       })
     })
   )
+
+  const failures = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+  if (failures.length > 0) {
+    console.error(`[runAllAgents] ${failures.length} agent(s) failed:`, failures.map((f) => f.reason))
+  }
 
   await refreshScores(ideaId)
   revalidatePath(`/ideas/${ideaId}`)
