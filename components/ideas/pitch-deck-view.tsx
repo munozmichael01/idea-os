@@ -1,15 +1,14 @@
 'use client'
 
 import * as React from 'react'
-import { PitchDeck, PitchSlideKey } from '@/lib/types'
+import { PitchDeck } from '@/lib/types'
 import { Manrope, JetBrains_Mono } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import { 
   Share2, 
   Download, 
   ChevronLeft, 
-  ChevronRight,
-  Loader2
+  ChevronRight
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -68,7 +67,7 @@ export function PitchDeckView({ deck }: PitchDeckViewProps) {
   React.useEffect(() => {
     const hash = window.location.hash
     const m = /^#(\d+)$/.exec(hash)
-    if (m) {
+    if (m && m[1]) {
       const i = parseInt(m[1], 10) - 1
       setCurrentSlide(Math.max(0, Math.min(total - 1, i)))
     }
@@ -554,8 +553,7 @@ export function PitchDeckView({ deck }: PitchDeckViewProps) {
                         </div>
                       </div>
                       <div className="big-stat">
-                        <div className="num">
-                          {data.headlineStat.value.replace(/(\d+)/, '<em>$1</em>')}
+                        <div className="num" dangerouslySetInnerHTML={{ __html: data.headlineStat.value.replace(/(\d+)/, '<em>$1</em>') }}>
                         </div>
                         <div className="lbl">{data.headlineStat.label}</div>
                       </div>
@@ -736,7 +734,7 @@ export function PitchDeckView({ deck }: PitchDeckViewProps) {
                           {m.credentials.map((c: any, ci: number) => (
                             <li key={ci}>
                               <span className="yr">{c.year}</span>
-                              <span className="what">{c.what}{c.where ? ` · <em>${c.where}</em>` : ''}</span>
+                              <span className="what" dangerouslySetInnerHTML={{ __html: `${c.what}${c.where ? ` · <em>${c.where}</em>` : ''}` }}></span>
                             </li>
                           ))}
                         </ul>
@@ -750,7 +748,7 @@ export function PitchDeckView({ deck }: PitchDeckViewProps) {
                   <div className="ask-grid">
                     <div className="ask-num">
                       <div className="label">Ronda de inversión</div>
-                      <div className="big"><em>{data.amount}</em><small>{data.currency}</small></div>
+                      <div className="big"><em dangerouslySetInnerHTML={{ __html: data.amount }}></em><small>{data.currency}</small></div>
                       <div className="sub">{data.description}</div>
                     </div>
                     <div className="uof-section">
