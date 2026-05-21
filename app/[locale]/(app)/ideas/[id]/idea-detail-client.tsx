@@ -17,7 +17,8 @@ import {
   Plus,
   ArrowRight,
   FileText,
-  Square
+  Square,
+  Presentation
 } from 'lucide-react';
 import { Link } from '@/navigation';
 import { toast } from 'sonner';
@@ -390,14 +391,14 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               <FileText className="h-4 w-4" />
               Exportar
             </Button>
-            {idea.analyses.length > 0 && (
+            {agentsDone > 0 && (
               <Link href={`/ideas/${idea.id}/pitch`}>
-                <Button
-                  variant="secondary"
-                  className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--accent-pri)] hover:text-[var(--accent-pri)] font-medium"
+                <Button 
+                  variant="secondary" 
+                  className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--accent-pri)] hover:border-[var(--accent-pri)] hover:text-[var(--accent-pri)] font-bold"
                 >
-                  <Sparkles className="h-4 w-4" />
-                  Pitch Deck
+                  <Presentation className="h-4 w-4" />
+                  Ver Pitch Deck
                 </Button>
               </Link>
             )}
