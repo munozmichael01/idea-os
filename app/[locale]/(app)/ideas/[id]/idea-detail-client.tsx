@@ -390,6 +390,17 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               <FileText className="h-4 w-4" />
               Exportar
             </Button>
+            {idea.analyses.length > 0 && (
+              <Link href={`/ideas/${idea.id}/pitch`}>
+                <Button
+                  variant="secondary"
+                  className="h-10 px-5 gap-2.5 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:border-[var(--accent-pri)] hover:text-[var(--accent-pri)] font-medium"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Pitch Deck
+                </Button>
+              </Link>
+            )}
             {idea.status !== 'IMPLEMENTING' && (
               <Button 
                 variant="secondary" 
