@@ -123,6 +123,7 @@ model Idea {
   contextQuestions Json?      @map("context_questions")
   contextSummary   String?    @map("context_summary")
   executiveSummary String?    @map("executive_summary")
+  pitchDeck        Json?      @map("pitch_deck")
   compositeScore   Float?     @map("composite_score")
   confidenceScore Float?     @map("confidence_score")
   volatilityScore Float?     @map("volatility_score")

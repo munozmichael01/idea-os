@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import type { Message } from '@anthropic-ai/sdk/resources/messages'
-import type { AgentDefinition, AgentOutput, Analysis, ContextAnswers, ContextOutput, Idea } from './types'
+import type { AgentDefinition, AgentOutput, Analysis, ContextAnswers, ContextOutput, Idea, PitchDeck } from './types'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -89,6 +89,36 @@ export async function runSynthesisAgent(
     const text = extractText(response).trim()
     if (!text) throw new Error('Synthesis agent returned empty response')
     return text
+  })
+}
+
+// ─── Pitch Agent ─────────────────────────────────────────────────────────────
+
+export async function runPitchAgent(
+  idea: Idea,
+  analyses: Analysis[],
+  contextAnswers?: ContextAnswers
+): Promise<PitchDeck> {
+  return withRetry(async () => {
+    const { pitchAgent } = await import('../agents/pitch')
+    const prompt = pitchAgent.buildPrompt(idea, analyses, contextAnswers)
+
+    const response = await anthropic.messages.create({
+      model: pitchAgent.model,
+      max_tokens: 4096,
+      messages: [{ role: 'user', content: prompt }],
+    })
+
+    const text = extractText(response)
+    if (!text.trim()) throw new Error('Pitch agent returned empty response')
+
+    const output = extractJson<PitchDeck>(text)
+
+    if (!output.meta?.ideaName || !output.slides || !Array.isArray(output.enabledSlides)) {
+      throw new Error('Pitch agent returned invalid output structure')
+    }
+
+    return output
   })
 }
 

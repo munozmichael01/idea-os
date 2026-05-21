@@ -91,6 +91,105 @@ export interface ContextOutput {
 /** Stored in ideas.context_answers — keyed by question id */
 export type ContextAnswers = Record<string, string>
 
+// ─── Pitch deck ───────────────────────────────────────────────────────────────
+
+export type PitchSlideKey =
+  | 'problem'
+  | 'solution'
+  | 'market'
+  | 'competition'
+  | 'businessModel'
+  | 'gtm'
+  | 'team'
+  | 'ask'
+
+export interface PitchDeck {
+  meta: {
+    ideaName: string
+    tagline: string
+    sector: string
+    stage: string
+    geography?: string
+    contactEmail?: string
+  }
+  slides: {
+    problem?: {
+      title: string
+      body: string
+      headlineStat: { value: string; label: string }
+      facts: Array<{ value: string; label: string }>
+    }
+    solution?: {
+      title: string
+      steps: Array<{ title: string; description: string }>
+      benefits: Array<{ title: string; description: string }>
+    }
+    market?: {
+      title: string
+      tam: { value: string; description: string }
+      sam: { value: string; description: string }
+      som: { value: string; description: string }
+      growthNote: string
+    }
+    competition?: {
+      title: string
+      table: {
+        headers: string[]
+        rows: Array<{
+          feature: string
+          values: string[]
+          highlightLast: boolean
+        }>
+      }
+    }
+    businessModel?: {
+      title: string
+      pricing: {
+        tier: string
+        amount: string
+        unit: string
+        description: string
+        features: string[]
+      }
+      unitEconomics: {
+        cac?: string
+        ltv?: string
+        ltvCacRatio?: string
+        grossMargin?: string
+      }
+    }
+    gtm?: {
+      title: string
+      phases: Array<{
+        title: string
+        timeframe: string
+        actions: string[]
+        kpiLabel: string
+        kpiValue: string
+      }>
+    }
+    team?: {
+      title: string
+      members: Array<{
+        initials: string
+        name: string
+        role: string
+        bio: string
+        credentials: Array<{ year: string; what: string; where?: string }>
+      }>
+    }
+    ask?: {
+      title: string
+      amount: string
+      currency: string
+      description: string
+      useOfFunds: Array<{ label: string; percentage: number }>
+      nextMilestone: string
+    }
+  }
+  enabledSlides: PitchSlideKey[]
+}
+
 // ─── Analysis agent contract ──────────────────────────────────────────────────
 
 /** Raw JSON output every analysis agent must return */

@@ -4,7 +4,7 @@ import { createHash } from 'crypto'
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
 import { createClient } from '@supabase/supabase-js'
-import { runAgent, runContextAgent, runSynthesisAgent } from '@/lib/claude'
+import { runAgent, runContextAgent, runSynthesisAgent, runPitchAgent } from '@/lib/claude'
 import {
   computeCompositeScore,
   computeConfidenceScore,
@@ -25,6 +25,7 @@ import type {
   Idea,
   IdeaField,
   IdeaFull,
+  PitchDeck,
   UpdateIdeaPayload,
 } from '@/lib/types'
 
@@ -396,6 +397,36 @@ export async function getIdea(ideaId: string): Promise<IdeaFull> {
       workspace: true,
     },
   })
+}
+
+// ─── runPitchAgentForIdea ─────────────────────────────────────────────────────
+
+export async function runPitchAgentForIdea(ideaId: string): Promise<PitchDeck> {
+  const idea = await prisma.idea.findUniqueOrThrow({ where: { id: ideaId } })
+  const contextAnswers = idea.contextAnswers as ContextAnswers | null
+
+  const allAnalyses = await prisma.analysis.findMany({
+    where: { ideaId },
+    orderBy: { createdAt: 'desc' },
+  })
+
+  // Most recent analysis per agent
+  const seen = new Set<string>()
+  const latestAnalyses = allAnalyses.filter((a) => {
+    if (seen.has(a.agentType)) return false
+    seen.add(a.agentType)
+    return true
+  })
+
+  const deck = await runPitchAgent(idea, latestAnalyses, contextAnswers ?? undefined)
+
+  await prisma.idea.update({
+    where: { id: ideaId },
+    data: { pitchDeck: JSON.parse(JSON.stringify(deck)) },
+  })
+
+  revalidatePath(`/ideas/${ideaId}`)
+  return deck
 }
 
 // ─── exportIdea ───────────────────────────────────────────────────────────────
