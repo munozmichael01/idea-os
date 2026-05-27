@@ -15,7 +15,7 @@ function useIsMobile() {
 }
 import { Hypothesis, AgentType } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { Check, HelpCircle, XCircle } from 'lucide-react';
+import { Check, XCircle } from 'lucide-react';
 
 interface HypothesisListProps {
   hypotheses: Hypothesis[];
@@ -37,6 +37,12 @@ const AGENT_COLORS: Record<AgentType, string> = {
   founder_fit: 'var(--blue)',
 };
 
+const STATUS_LABELS: Record<string, string> = {
+  unvalidated: 'Sin validar',
+  confirmed: 'Confirmada',
+  invalidated: 'Descartada',
+};
+
 function HypothesisCard({ h }: { h: Hypothesis }) {
   const isMobile = useIsMobile();
   const accent = AGENT_COLORS[h.agentType as AgentType] || 'var(--text-muted)';
@@ -51,8 +57,7 @@ function HypothesisCard({ h }: { h: Hypothesis }) {
         ...(isMobile && { display: 'flex', flexDirection: 'column', gap: '8px' }),
       } as React.CSSProperties}
     >
-      {/* Tags row — always on top */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 mb-2">
         <span className="agent-stamp flex-shrink-0 px-1.5 py-0.5 rounded-[4px] bg-[var(--bg-elev)] border border-[var(--border-subtle)] font-mono text-[9px] font-bold text-[var(--accent)]">
           {AGENT_SHORT[h.agentType as AgentType] || '??'}
         </span>
@@ -64,57 +69,40 @@ function HypothesisCard({ h }: { h: Hypothesis }) {
         )}>
           {statusClass === 'confirmed' && <Check className="h-2.5 w-2.5" strokeWidth={3} />}
           {statusClass === 'invalidated' && <XCircle className="h-2.5 w-2.5" strokeWidth={3} />}
-          {h.status}
+          {STATUS_LABELS[h.status] || h.status}
         </span>
       </div>
-      {/* Description — full width */}
       <p className="text-[14px] text-[var(--text-primary)] leading-relaxed">{h.description}</p>
     </div>
   );
 }
 
-const HypothesesGroup = ({ criticality, color, items }: { criticality: string, color: string, items: Hypothesis[] }) => {
-  if (items.length === 0) return null;
-  return (
-    <div className="hyp-group mb-6">
-      <div className="hyp-group-head flex items-center gap-2.5 mb-3 px-1">
-        <span className="crit-dot h-1.5 w-1.5 rounded-full" style={{ background: color }} />
-        <span className="text-[11px] font-mono font-bold uppercase tracking-[0.12em] text-[var(--text-muted)]">Criticidad {criticality.toLowerCase()}</span>
-        <span className="crit-count ml-auto px-1.5 py-0.5 rounded-[4px] bg-[var(--bg-elev)] border border-[var(--border-subtle)] text-[10px] text-[var(--text-muted)]">{items.length}</span>
-      </div>
-      <div className="flex flex-col">
-        {items.map(h => <HypothesisCard key={h.id} h={h} />)}
-      </div>
-    </div>
-  );
-};
-
 export function HypothesisList({ hypotheses }: HypothesisListProps) {
-  const hypsByCrit = {
-    Alta: hypotheses.filter(h => h.criticality === 'high'),
-    Media: hypotheses.filter(h => h.criticality === 'medium'),
-    Baja: hypotheses.filter(h => h.criticality === 'low'),
-  };
+  const sortedHypotheses = React.useMemo(() => {
+    return [...hypotheses].sort((a, b) => 
+      (a.agentType || '').localeCompare(b.agentType || '')
+    );
+  }, [hypotheses]);
+
+  const pendingCount = hypotheses.filter(h => h.status === 'unvalidated').length;
 
   return (
     <div className="hypotheses-section">
       <h2 className="section-title-lg flex items-center gap-3 text-[18px] font-bold font-display text-[var(--text-primary)] mb-6">
-        Hipótesis
+        Hipótesis a validar
         <span className="sub font-normal text-[13px] text-[var(--text-muted)] font-sans">
-          {hypotheses.length} totales · {hypotheses.filter(h => h.status === 'unvalidated').length} pendientes
+          {pendingCount} pendientes de {hypotheses.length} totales
         </span>
       </h2>
       
       {hypotheses.length === 0 ? (
         <div className="p-8 text-center bg-[var(--bg-card)] border border-dashed border-[var(--border-subtle)] rounded-[16px]">
-          <p className="text-[13.5px] text-[var(--text-muted)] italic">No hypotheses generated yet.</p>
+          <p className="text-[13.5px] text-[var(--text-muted)] italic">Aún no hay hipótesis generadas. Ejecuta el análisis para identificar los supuestos críticos de tu idea.</p>
         </div>
       ) : (
-        <>
-          <HypothesesGroup criticality="Alta" color="var(--red)" items={hypsByCrit.Alta} />
-          <HypothesesGroup criticality="Media" color="var(--yellow)" items={hypsByCrit.Media} />
-          <HypothesesGroup criticality="Baja" color="var(--text-muted)" items={hypsByCrit.Baja} />
-        </>
+        <div className="flex flex-col">
+          {sortedHypotheses.map(h => <HypothesisCard key={h.id} h={h} />)}
+        </div>
       )}
     </div>
   );
