@@ -209,8 +209,9 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
       
       const textToSpeak = `Análisis de ${idea.title}. ${parts.join(' ')}`;
 
-      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-      const response = await fetch(`${baseUrl}/api/audio/synthesize`, {
+      const baseUrl = window.location.origin;
+      const path = '/api/audio/synthesize';
+      const response = await fetch(`${baseUrl}${path}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: textToSpeak, idea_id: idea.id }),

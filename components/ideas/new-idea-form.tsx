@@ -121,7 +121,9 @@ export function NewIdeaForm({ onSubmit }: NewIdeaFormProps) {
       const formData = new FormData();
       formData.append('audio', blob, 'recording.webm');
 
-      const response = await fetch('/api/audio/transcribe', {
+      const baseUrl = window.location.origin;
+      const path = '/api/audio/transcribe';
+      const response = await fetch(`${baseUrl}${path}`, {
         method: 'POST',
         body: formData,
       });
