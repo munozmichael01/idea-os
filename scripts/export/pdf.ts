@@ -12,7 +12,8 @@ export async function generatePdf(ideaId: string): Promise<Buffer> {
   try {
     const page = await browser.newPage()
 
-    await page.setViewport({ width: 1280, height: 900 })
+    // Set viewport to match the internal slide resolution
+    await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 2 })
 
     // Pass service role cookie so the export page can load protected data
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -27,7 +28,7 @@ export async function generatePdf(ideaId: string): Promise<Buffer> {
       })
     }
 
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 30_000 })
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30_000 })
 
     // Wait for the export page to signal it's ready (data loaded)
     await page.waitForSelector('[data-export-ready]', { timeout: 15_000 }).catch(() => {
@@ -35,9 +36,11 @@ export async function generatePdf(ideaId: string): Promise<Buffer> {
     })
 
     const pdf = await page.pdf({
-      format: 'A4',
-      margin: { top: '20mm', right: '20mm', bottom: '20mm', left: '20mm' },
+      width: '1920px',
+      height: '1080px',
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
       printBackground: true,
+      preferCSSPageSize: true,
     })
 
     return Buffer.from(pdf)

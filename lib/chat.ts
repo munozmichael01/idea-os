@@ -8,8 +8,8 @@ import type { Analysis, ContextAnswers, ContextQuestion, Idea, Message } from '.
 const GEMMA_MODEL = 'gemma-4-12b'
 
 function getClient() {
-  const apiKey = process.env.Default_Gemini_API_Key
-  if (!apiKey) throw new Error('Default_Gemini_API_Key is not set')
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.Default_Gemini_API_Key
+  if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment variables')
   return new GoogleGenerativeAI(apiKey)
 }
 
