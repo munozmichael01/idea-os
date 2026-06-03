@@ -18,6 +18,7 @@ export {
   HypothesisStatus,
   ExperimentStatus,
   ExportFormat,
+  MessageRole,
 } from '@prisma/client'
 
 // ─── Base entity types (plain rows, no relations) ─────────────────────────────
@@ -32,6 +33,7 @@ export type Experiment = Prisma.ExperimentGetPayload<Record<string, never>>
 export type AudioInput = Prisma.AudioInputGetPayload<Record<string, never>>
 export type Export = Prisma.ExportGetPayload<Record<string, never>>
 export type RankingHistory = Prisma.RankingHistoryGetPayload<Record<string, never>>
+export type Message = Prisma.MessageGetPayload<Record<string, never>>
 
 // ─── Rich types with relations (used by UI and Server Actions) ────────────────
 
@@ -53,8 +55,24 @@ export type IdeaFull = Prisma.IdeaGetPayload<{
     rankingHistory: true
     creator: true
     workspace: true
+    messages: { orderBy: { createdAt: 'asc' } }
   }
 }>
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+
+export interface MessageAttachment {
+  name: string
+  mimeType: string
+  size: number
+}
+
+/** Emitted at end of SSE stream when model detects valuable new info */
+export interface ContextPatch {
+  agents: AgentType[]
+  newInfo: string
+  summary: string
+}
 
 export type WorkspaceWithMembers = Prisma.WorkspaceGetPayload<{
   include: { members: { include: { user: true } }; owner: true }

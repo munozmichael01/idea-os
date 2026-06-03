@@ -395,8 +395,48 @@ export async function getIdea(ideaId: string): Promise<IdeaFull> {
       rankingHistory: true,
       creator: true,
       workspace: true,
+      messages: { orderBy: { createdAt: 'asc' } },
     },
   })
+}
+
+// ─── getMessages ──────────────────────────────────────────────────────────────
+
+export async function getMessages(ideaId: string) {
+  return prisma.message.findMany({
+    where: { ideaId },
+    orderBy: { createdAt: 'asc' },
+  })
+}
+
+// ─── applyContextPatch ────────────────────────────────────────────────────────
+
+export async function applyContextPatch(
+  ideaId: string,
+  newInfo: string,
+  affectedAgents: string[]
+): Promise<void> {
+  const idea = await prisma.idea.findUniqueOrThrow({ where: { id: ideaId } })
+  const existing = (idea.contextAnswers as Record<string, string>) ?? {}
+
+  const patchKey = `chat_${Date.now()}`
+  const updated = { ...existing, [patchKey]: newInfo }
+
+  await prisma.idea.update({
+    where: { id: ideaId },
+    data: { contextAnswers: updated },
+  })
+
+  const { AgentType } = await import('@prisma/client')
+  const validAgents = affectedAgents.filter(
+    (a): a is import('@/lib/types').AgentType => a in AgentType
+  )
+
+  await Promise.allSettled(
+    validAgents.map((agentType) => runAgentForIdea(ideaId, agentType))
+  )
+
+  revalidatePath(`/ideas/${ideaId}`)
 }
 
 // ─── runPitchAgentForIdea ─────────────────────────────────────────────────────
