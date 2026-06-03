@@ -166,17 +166,9 @@ export function PitchDeckView({ deck, ideaId, isPublic, isExport }: PitchDeckVie
     }
   }
 
-  const handleDownloadPDF = async () => {
+  const handlePrint = async () => {
     setIsExporting(true)
     try {
-      const { exportIdea } = await import('@/lib/actions/ideas')
-      // Note: We need a userId, but this is a client component.
-      // In the context of the app, we usually have a session.
-      // For now, let's use a dummy ID or trigger the browser print if it's simpler, 
-      // but the user specifically complained about the browser print.
-      
-      // Actually, since we've optimized the print styles, window.print() might work now.
-      // Let's try the optimized window.print() first, as server-side Puppeteer might be slow.
       window.print()
     } catch (err) {
       toast.error('Error al generar PDF')
