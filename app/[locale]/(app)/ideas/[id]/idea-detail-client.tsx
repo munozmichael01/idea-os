@@ -18,7 +18,8 @@ import {
   ArrowRight,
   FileText,
   Square,
-  Presentation
+  Presentation,
+  MessageSquare
 } from 'lucide-react';
 import { Link } from '@/navigation';
 import { toast } from 'sonner';
@@ -26,6 +27,7 @@ import { IdeaFull, AgentType, IdeaField, ContextAnswers, Analysis } from '@/lib/
 import { updateIdea, runAgentForIdea, runAllAgents, runContextAgentForIdea, runSynthesisAgentForIdea, exportIdea, getIdea } from '@/lib/actions/ideas';
 import { ScoreRing, scoreColor, scoreLabel, scoreBg } from '@/components/ui/score-ring';
 import { cn } from '@/lib/utils';
+import { IdeaChatPanel } from '@/components/ideas/detail/chat-panel';
 
 interface IdeaDetailClientProps {
   initialIdea: IdeaFull;
@@ -44,6 +46,20 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const [isExporting, setIsExporting] = React.useState(false);
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [isLg, setIsLg] = React.useState(false);
+  const [isChatOpen, setIsChatOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem('idea-chat-open');
+    if (saved === 'true') setIsChatOpen(true);
+  }, []);
+
+  const toggleChat = () => {
+    setIsChatOpen(prev => {
+      const next = !prev;
+      localStorage.setItem('idea-chat-open', String(next));
+      return next;
+    });
+  };
   React.useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)');
     setIsLg(mq.matches);
@@ -745,6 +761,25 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
           </div>
         </div>
       )}
+
+      {/* Floating Chat Button */}
+      <button
+        onClick={toggleChat}
+        className={cn(
+          "fixed bottom-6 right-6 h-14 pl-5 pr-6 rounded-full bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] shadow-xl shadow-[var(--accent-pri)]/20 flex items-center gap-3 hover:scale-105 active:scale-95 transition-all z-[80]",
+          isChatOpen && "opacity-0 pointer-events-none scale-90"
+        )}
+      >
+        <MessageSquare className="h-5 w-5" />
+        <span className="font-bold text-[15px]">Asesor</span>
+      </button>
+
+      {/* Chat Panel */}
+      <IdeaChatPanel 
+        ideaId={idea.id}
+        isOpen={isChatOpen}
+        onClose={toggleChat}
+      />
     </div>
   );
 }
