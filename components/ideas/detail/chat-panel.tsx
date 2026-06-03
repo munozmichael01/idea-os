@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { X, Send, Paperclip, MessageSquare, Loader2, Check, ArrowRight } from 'lucide-react';
+import { X, Send, Paperclip, MessageSquare, Loader2, Check, ArrowRight, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Message, ContextPatch, AgentType } from '@/lib/types';
