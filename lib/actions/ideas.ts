@@ -43,8 +43,9 @@ async function getAllAgentDefinitions(): Promise<Record<AgentType, AgentDefiniti
 }
 
 function computeInputHash(idea: Idea, affectedFields: IdeaField[]): string {
-  const input = affectedFields.map((f) => String(idea[f] ?? '')).join('|')
-  return createHash('sha256').update(input).digest('hex')
+  const fieldValues = affectedFields.map((f) => String(idea[f] ?? '')).join('|')
+  const contextStr = idea.contextAnswers ? JSON.stringify(idea.contextAnswers) : ''
+  return createHash('sha256').update(fieldValues + contextStr).digest('hex')
 }
 
 async function refreshScores(ideaId: string): Promise<void> {
@@ -254,7 +255,7 @@ export async function runSynthesisAgentForIdea(ideaId: string): Promise<string> 
 
 // ─── runAgentForIdea ──────────────────────────────────────────────────────────
 
-export async function runAgentForIdea(ideaId: string, agentType: AgentType, force = false): Promise<void> {
+export async function runAgentForIdea(ideaId: string, agentType: AgentType): Promise<void> {
   const idea = await prisma.idea.findUniqueOrThrow({ where: { id: ideaId } })
   const agentDefs = await getAllAgentDefinitions()
   const agentDef = agentDefs[agentType]
@@ -263,15 +264,13 @@ export async function runAgentForIdea(ideaId: string, agentType: AgentType, forc
 
   const inputHash = computeInputHash(idea, agentDef.affectedBy)
 
-  if (!force) {
-    const existingAnalysis = await prisma.analysis.findFirst({
-      where: { ideaId, agentType },
-      orderBy: { createdAt: 'desc' },
-    })
-    if (existingAnalysis?.inputHash === inputHash) {
-      revalidatePath(`/ideas/${ideaId}`)
-      return
-    }
+  const existingAnalysis = await prisma.analysis.findFirst({
+    where: { ideaId, agentType },
+    orderBy: { createdAt: 'desc' },
+  })
+  if (existingAnalysis?.inputHash === inputHash) {
+    revalidatePath(`/ideas/${ideaId}`)
+    return
   }
 
   const output = await runAgent(agentDef, idea, contextAnswers ?? undefined)
@@ -434,9 +433,8 @@ export async function applyContextPatch(
     (a): a is import('@/lib/types').AgentType => a in AgentType
   )
 
-  // force=true because contextAnswers changed but hash of other fields didn't
   await Promise.allSettled(
-    validAgents.map((agentType) => runAgentForIdea(ideaId, agentType, true))
+    validAgents.map((agentType) => runAgentForIdea(ideaId, agentType))
   )
 
   revalidatePath(`/ideas/${ideaId}`)
