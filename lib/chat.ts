@@ -5,7 +5,7 @@ import {
 } from '@google/generative-ai'
 import type { Analysis, ContextAnswers, ContextQuestion, Idea, Message } from './types'
 
-const GEMMA_MODEL = 'gemma-3-12b-it'
+const GEMMA_MODEL = 'gemini-2.5-flash'
 
 function getClient() {
   const apiKey = process.env.Gemini
