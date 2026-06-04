@@ -607,6 +607,20 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               <span className="sub font-normal text-[13px] text-[var(--text-muted)] font-sans">{agentsDone} / {totalAgents} completos</span>
             </h2>
 
+            {/* Executive Summary at the top */}
+            <div className="mb-10">
+              <ContextAgentCard
+                summary={
+                  idea.executiveSummary ??
+                  (contextAnswers && Object.keys(contextAnswers).length > 0
+                    ? Object.values(contextAnswers as Record<string, string>).join('\n\n')
+                    : undefined)
+                }
+                isAnalyzing={isSummarizing}
+                onAnalyze={handleSummarize}
+              />
+            </div>
+
             {/* Problem Validation Highlight */}
             <div className="mb-10">
               <div className="flex items-center gap-4 mb-4">
@@ -633,16 +647,6 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
                 : { display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '14px', minWidth: 0, width: '100%' }
               }
             >
-              <ContextAgentCard
-                summary={
-                  idea.executiveSummary ??
-                  (contextAnswers && Object.keys(contextAnswers).length > 0
-                    ? Object.values(contextAnswers as Record<string, string>).join('\n\n')
-                    : undefined)
-                }
-                isAnalyzing={isSummarizing}
-                onAnalyze={handleSummarize}
-              />
               {analysisAgents.filter(a => a !== 'problem').map((agentType) => (
                 <AgentAnalysisCard 
                   key={agentType}
