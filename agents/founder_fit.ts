@@ -4,7 +4,7 @@ import type { AgentDefinition, ContextAnswers, Idea } from '@/lib/types'
 export const agent: AgentDefinition = {
   id: 'founder_fit',
   label: 'Fit con el fundador',
-  weight: 0.15,
+  weight: 0.20,
   model: 'claude-haiku-4-5-20251001',
   useWebSearch: false,
   affectedBy: ['description', 'notes'],

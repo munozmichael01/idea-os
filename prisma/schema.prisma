@@ -36,6 +36,7 @@ enum AgentType {
   economics
   gtm
   founder_fit
+  problem
 }
 
 enum Criticality {
@@ -130,6 +131,8 @@ model Idea {
   executiveSummary String?    @map("executive_summary")
   pitchDeck        Json?      @map("pitch_deck")
   compositeScore   Float?     @map("composite_score")
+  opportunityScore Float?    @map("opportunity_score")
+  executionScore   Float?    @map("execution_score")
   confidenceScore Float?     @map("confidence_score")
   volatilityScore Float?     @map("volatility_score")
   status          IdeaStatus @default(ANALYZING)

@@ -22,6 +22,7 @@ interface HypothesisListProps {
 }
 
 const AGENT_SHORT: Record<AgentType, string> = {
+  problem: 'PROB',
   market: 'MKT',
   competition: 'COMP',
   economics: 'ECON',
@@ -30,6 +31,7 @@ const AGENT_SHORT: Record<AgentType, string> = {
 };
 
 const AGENT_COLORS: Record<AgentType, string> = {
+  problem: 'var(--red)',
   market: 'var(--accent-pri)',
   competition: 'var(--orange)',
   economics: 'var(--yellow)',

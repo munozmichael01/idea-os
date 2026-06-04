@@ -222,6 +222,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
     setIsSynthesizing(true);
     try {
       const agentNames: Record<AgentType, string> = {
+        problem: 'Validación del problema',
         market: 'Mercado',
         competition: 'Competencia',
         economics: 'Economía unitaria',
@@ -265,7 +266,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
     }
   };
 
-  const analysisAgents: AgentType[] = ['market', 'competition', 'economics', 'gtm', 'founder_fit'];
+  const analysisAgents: AgentType[] = ['problem', 'market', 'competition', 'economics', 'gtm', 'founder_fit'];
   const contextAnswers = idea.contextAnswers as ContextAnswers | null;
 
   // Deduplicate by agentType — analyses are ordered desc so first match = latest

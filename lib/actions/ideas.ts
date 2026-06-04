@@ -7,6 +7,8 @@ import { createClient } from '@supabase/supabase-js'
 import { runAgent, runContextAgent, runSynthesisAgent, runPitchAgent } from '@/lib/claude'
 import {
   computeCompositeScore,
+  computeOpportunityScore,
+  computeExecutionScore,
   computeConfidenceScore,
   computeVolatilityScore,
   getAffectedAgents,
@@ -32,14 +34,15 @@ import type {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 async function getAllAgentDefinitions(): Promise<Record<AgentType, AgentDefinition>> {
-  const [market, competition, economics, gtm, founder_fit] = await Promise.all([
+  const [market, competition, economics, gtm, founder_fit, problem] = await Promise.all([
     import('@/agents/market').then((m) => m.agent),
     import('@/agents/competition').then((m) => m.agent),
     import('@/agents/economics').then((m) => m.agent),
     import('@/agents/gtm').then((m) => m.agent),
     import('@/agents/founder_fit').then((m) => m.agent),
+    import('@/agents/problem').then((m) => m.agent),
   ])
-  return { market, competition, economics, gtm, founder_fit }
+  return { market, competition, economics, gtm, founder_fit, problem }
 }
 
 function computeInputHash(idea: Idea, affectedFields: IdeaField[]): string {
@@ -62,14 +65,16 @@ async function refreshScores(ideaId: string): Promise<void> {
     return true
   })
 
-  const compositeScore = computeCompositeScore(analyses)
-  const confidenceScore = computeConfidenceScore(hypotheses)
-  const volatilityScore = computeVolatilityScore(hypotheses)
+  const compositeScore    = computeCompositeScore(analyses)
+  const opportunityScore  = computeOpportunityScore(analyses)
+  const executionScore    = computeExecutionScore(analyses)
+  const confidenceScore   = computeConfidenceScore(hypotheses)
+  const volatilityScore   = computeVolatilityScore(hypotheses)
 
   await Promise.all([
     prisma.idea.update({
       where: { id: ideaId },
-      data: { compositeScore, confidenceScore, volatilityScore },
+      data: { compositeScore, opportunityScore, executionScore, confidenceScore, volatilityScore },
     }),
     prisma.rankingHistory.create({
       data: { ideaId, compositeScore, confidenceScore, volatilityScore, reason: 'score_refresh' },

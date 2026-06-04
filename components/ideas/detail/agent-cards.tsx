@@ -15,39 +15,46 @@ interface AgentAnalysisCardProps {
 }
 
 const AGENT_METADATA: Record<AgentType, { name: string, short: string, role: string, color: string }> = {
-  market: { 
-    name: 'Market Intelligence', 
-    short: 'MKT', 
-    role: 'Analista de mercado y tendencias', 
-    color: 'var(--accent-pri)' 
+  problem: {
+    name: 'Problem Validation',
+    short: 'PROB',
+    role: 'Validador del dolor real',
+    color: 'var(--red)',
   },
-  competition: { 
-    name: 'Competitive Strategy', 
-    short: 'COMP', 
-    role: 'Estratega de competición', 
-    color: 'var(--orange)' 
+  market: {
+    name: 'Market Intelligence',
+    short: 'MKT',
+    role: 'Analista de mercado y tendencias',
+    color: 'var(--accent-pri)'
   },
-  economics: { 
-    name: 'Unit Economics', 
-    short: 'ECON', 
-    role: 'Modelador financiero', 
-    color: 'var(--yellow)' 
+  competition: {
+    name: 'Competitive Strategy',
+    short: 'COMP',
+    role: 'Estratega de competición',
+    color: 'var(--orange)'
   },
-  gtm: { 
-    name: 'Go-To-Market', 
-    short: 'GTM', 
-    role: 'Especialista en crecimiento', 
-    color: 'var(--purple)' 
+  economics: {
+    name: 'Unit Economics',
+    short: 'ECON',
+    role: 'Modelador financiero',
+    color: 'var(--yellow)'
   },
-  founder_fit: { 
-    name: 'Founder Fit', 
-    short: 'FIT', 
-    role: 'Psicólogo de producto', 
-    color: 'var(--blue)' 
+  gtm: {
+    name: 'Go-To-Market',
+    short: 'GTM',
+    role: 'Especialista en crecimiento',
+    color: 'var(--purple)'
+  },
+  founder_fit: {
+    name: 'Founder Fit',
+    short: 'FIT',
+    role: 'Psicólogo de producto',
+    color: 'var(--blue)'
   },
 };
 
 const AGENT_EMPTY_DESC: Record<AgentType, string> = {
+  problem: 'Intensidad del dolor, urgencia y evidencia de demanda real.',
   market: 'Tamaño de mercado, tendencias y barreras de entrada.',
   competition: 'Competidores actuales y ventaja diferencial.',
   economics: 'Rentabilidad, márgenes y viabilidad financiera.',

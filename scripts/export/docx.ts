@@ -15,6 +15,7 @@ import type { IdeaFull } from '@/lib/types'
 import { AgentType } from '@/lib/types'
 
 const AGENT_LABELS: Record<AgentType, string> = {
+  problem: 'Validación del problema',
   market: 'Viabilidad de mercado',
   competition: 'Análisis competitivo',
   economics: 'Modelo económico',
@@ -127,7 +128,7 @@ export async function generateDocx(idea: IdeaFull): Promise<Buffer> {
   // ── Agent analyses ─────────────────────────────────────────────────────────
   children.push(heading1('Análisis por dimensión'))
 
-  const agentOrder: AgentType[] = ['market', 'competition', 'economics', 'gtm', 'founder_fit']
+  const agentOrder: AgentType[] = ['problem', 'market', 'competition', 'economics', 'gtm', 'founder_fit']
 
   for (const agentType of agentOrder) {
     const analysis = idea.analyses

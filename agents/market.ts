@@ -4,7 +4,7 @@ import type { AgentDefinition, ContextAnswers, Idea } from '@/lib/types'
 export const agent: AgentDefinition = {
   id: 'market',
   label: 'Viabilidad de mercado',
-  weight: 0.25,
+  weight: 0.20,
   model: 'claude-sonnet-4-20250514',
   useWebSearch: true,
   affectedBy: ['description', 'sector', 'targetMarket'],
