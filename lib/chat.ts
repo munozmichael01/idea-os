@@ -8,8 +8,27 @@ import type { Analysis, ContextAnswers, ContextQuestion, Idea, Message } from '.
 const GEMMA_MODEL = 'gemma-4-12b'
 
 function getClient() {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.Default_Gemini_API_Key
-  if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment variables')
+  // 1. Intentar primero con los nombres exactos más comunes
+  let apiKey = 
+    process.env.GEMINI_API_KEY || 
+    process.env.Default_Gemini_API_Key ||
+    process.env.DEFAULT_GEMINI_API_KEY ||
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    
+  // 2. Si no se encuentra, buscar de forma insensible a mayúsculas
+  if (!apiKey) {
+    const keys = Object.keys(process.env);
+    const foundKey = keys.find(k => 
+      k.toLowerCase() === 'default_gemini_api_key' || 
+      k.toLowerCase() === 'gemini_api_key'
+    );
+    if (foundKey) apiKey = process.env[foundKey];
+  }
+
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY no encontrada. Por favor, verifica que la variable esté configurada en Vercel y que hayas re-desplegado la aplicación.')
+  }
+  
   return new GoogleGenerativeAI(apiKey)
 }
 
