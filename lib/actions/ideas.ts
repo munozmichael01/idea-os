@@ -71,15 +71,16 @@ async function refreshScores(ideaId: string): Promise<void> {
   const confidenceScore   = computeConfidenceScore(hypotheses)
   const volatilityScore   = computeVolatilityScore(hypotheses)
 
-  await Promise.all([
-    prisma.idea.update({
-      where: { id: ideaId },
-      data: { compositeScore, opportunityScore, executionScore, confidenceScore, volatilityScore },
-    }),
-    prisma.rankingHistory.create({
-      data: { ideaId, compositeScore, confidenceScore, volatilityScore, reason: 'score_refresh' },
-    }),
-  ])
+  // Update idea scores — always runs, independent of rankingHistory
+  await prisma.idea.update({
+    where: { id: ideaId },
+    data: { compositeScore, opportunityScore, executionScore, confidenceScore, volatilityScore },
+  })
+
+  // rankingHistory is non-critical — failure here should not block score update
+  prisma.rankingHistory.create({
+    data: { ideaId, compositeScore, confidenceScore, volatilityScore, reason: 'score_refresh' },
+  }).catch((err) => console.error('[refreshScores] rankingHistory failed:', err))
 }
 
 // ─── createIdea ───────────────────────────────────────────────────────────────
