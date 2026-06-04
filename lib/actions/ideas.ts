@@ -254,7 +254,7 @@ export async function runSynthesisAgentForIdea(ideaId: string): Promise<string> 
 
 // ─── runAgentForIdea ──────────────────────────────────────────────────────────
 
-export async function runAgentForIdea(ideaId: string, agentType: AgentType): Promise<void> {
+export async function runAgentForIdea(ideaId: string, agentType: AgentType, force = false): Promise<void> {
   const idea = await prisma.idea.findUniqueOrThrow({ where: { id: ideaId } })
   const agentDefs = await getAllAgentDefinitions()
   const agentDef = agentDefs[agentType]
@@ -263,13 +263,15 @@ export async function runAgentForIdea(ideaId: string, agentType: AgentType): Pro
 
   const inputHash = computeInputHash(idea, agentDef.affectedBy)
 
-  const existingAnalysis = await prisma.analysis.findFirst({
-    where: { ideaId, agentType },
-    orderBy: { createdAt: 'desc' },
-  })
-  if (existingAnalysis?.inputHash === inputHash) {
-    revalidatePath(`/ideas/${ideaId}`)
-    return
+  if (!force) {
+    const existingAnalysis = await prisma.analysis.findFirst({
+      where: { ideaId, agentType },
+      orderBy: { createdAt: 'desc' },
+    })
+    if (existingAnalysis?.inputHash === inputHash) {
+      revalidatePath(`/ideas/${ideaId}`)
+      return
+    }
   }
 
   const output = await runAgent(agentDef, idea, contextAnswers ?? undefined)
@@ -432,8 +434,9 @@ export async function applyContextPatch(
     (a): a is import('@/lib/types').AgentType => a in AgentType
   )
 
+  // force=true because contextAnswers changed but hash of other fields didn't
   await Promise.allSettled(
-    validAgents.map((agentType) => runAgentForIdea(ideaId, agentType))
+    validAgents.map((agentType) => runAgentForIdea(ideaId, agentType, true))
   )
 
   revalidatePath(`/ideas/${ideaId}`)
