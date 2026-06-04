@@ -35,7 +35,12 @@ Analiza:
 Tu respuesta debe ser ÚNICAMENTE el siguiente JSON, sin texto adicional, sin bloques de código markdown:
 
 {
-  "score": <número del 1 al 10>,
+  "score": <entero del 1 al 10 según esta rubrica — úsala estrictamente:
+    1-3: sin experiencia relevante en el sector; capacidad técnica ausente; sin red de contactos útil
+    4-5: experiencia tangencial; gaps críticos en ejecución técnica o conocimiento profundo del mercado
+    6-7: experiencia parcial relevante; fit razonable pero con gaps importantes que necesitan cubrirse
+    8-9: experiencia directa en el problema + capacidad de ejecución demostrada + red útil en el sector
+    10: el fundador ES el mercado — insider con ventaja de información única, irremplazable e injusta>,
   "headline": "<frase corta que resume el founder-market fit>",
   "strengths": ["<fortaleza del fundador para esta idea 1>", "<fortaleza 2>", "<fortaleza 3>"],
   "risks": ["<riesgo de fit 1>", "<riesgo 2>", "<riesgo 3>"],

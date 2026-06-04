@@ -27,7 +27,12 @@ Usa la herramienta de búsqueda web para identificar competidores reales y actua
 Tu respuesta debe ser ÚNICAMENTE el siguiente JSON, sin texto adicional, sin bloques de código markdown:
 
 {
-  "score": <número del 1 al 10>,
+  "score": <entero del 1 al 10 según esta rubrica — úsala estrictamente:
+    1-3: mercado dominado por incumbentes con moat fuerte (red, datos, contratos); diferenciación estructuralmente imposible
+    4-5: competencia intensa de players bien financiados; ventaja competitiva débil o fácilmente replicable en <6 meses
+    6-7: competencia moderada; existe espacio pero la ventaja no es sostenible a largo plazo sin ejecución perfecta
+    8-9: posición competitiva fuerte; diferenciación clara, defendible y difícil de copiar en el corto plazo
+    10: categoría nueva sin competencia directa + ventaja estructural única (datos, regulación, distribución exclusiva)>,
   "headline": "<frase corta que resume el panorama competitivo>",
   "strengths": ["<ventaja competitiva 1>", "<ventaja 2>", "<ventaja 3>"],
   "risks": ["<riesgo competitivo 1>", "<riesgo 2>", "<riesgo 3>"],

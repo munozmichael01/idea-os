@@ -25,7 +25,12 @@ Analiza:
 Tu respuesta debe ser ÚNICAMENTE el siguiente JSON, sin texto adicional, sin bloques de código markdown:
 
 {
-  "score": <número del 1 al 10>,
+  "score": <entero del 1 al 10 según esta rubrica — úsala estrictamente:
+    1-3: sin canal claro; early adopter no identificado; precio indefendible o ciclo de venta >12 meses
+    4-5: canal hipotético; acceso al cliente complicado o dependiente de partnerships sin confirmar
+    6-7: canal probable pero sin validación; early adopter definido pero sin acceso concreto todavía
+    8-9: canal probado con acceso directo al decisor; early adopter validado y dispuesto a pagar precio objetivo
+    10: distribución asegurada (partnership estratégico, efecto viral, comunidad existente) con tracción inicial demostrada>,
   "headline": "<frase corta que resume la estrategia GTM>",
   "strengths": ["<ventaja GTM 1>", "<ventaja 2>", "<ventaja 3>"],
   "risks": ["<riesgo GTM 1>", "<riesgo 2>", "<riesgo 3>"],

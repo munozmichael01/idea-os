@@ -25,7 +25,12 @@ Analiza:
 Tu respuesta debe ser ÚNICAMENTE el siguiente JSON, sin texto adicional, sin bloques de código markdown:
 
 {
-  "score": <número del 1 al 10>,
+  "score": <entero del 1 al 10 según esta rubrica — úsala estrictamente:
+    1-3: modelo no viable; márgenes negativos estructurales o CAC > LTV de forma demostrable
+    4-5: unit economics frágiles; depende de supuestos muy optimistas o requiere escala masiva para ser viable
+    6-7: modelo viable pero con gaps: pricing no validado, capital requerido alto o path a breakeven incierto
+    8-9: unit economics sólidos (LTV/CAC >3x), márgenes brutos >50%, path a breakeven razonablemente claro
+    10: economía excepcional con márgenes altos, CAC bajo, tracción validada y potencial de compounding>,
   "headline": "<frase corta que resume la viabilidad económica>",
   "strengths": ["<fortaleza económica 1>", "<fortaleza 2>", "<fortaleza 3>"],
   "risks": ["<riesgo financiero 1>", "<riesgo 2>", "<riesgo 3>"],
