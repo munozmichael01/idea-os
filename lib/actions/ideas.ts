@@ -359,6 +359,30 @@ export async function runAllAgents(ideaId: string): Promise<void> {
   }
 
   await refreshScores(ideaId)
+
+  // Regenerate executive summary with updated analyses
+  try {
+    const updatedIdea = await prisma.idea.findUniqueOrThrow({ where: { id: ideaId } })
+    const allAnalyses = await prisma.analysis.findMany({
+      where: { ideaId },
+      orderBy: { createdAt: 'desc' },
+    })
+    const seen = new Set<string>()
+    const latestAnalyses = allAnalyses.filter((a) => {
+      if (seen.has(a.agentType)) return false
+      seen.add(a.agentType)
+      return true
+    })
+    const contextAnswers = updatedIdea.contextAnswers as ContextAnswers | null
+    const summary = await runSynthesisAgent(updatedIdea, latestAnalyses, contextAnswers ?? undefined)
+    await prisma.idea.update({
+      where: { id: ideaId },
+      data: { executiveSummary: summary },
+    })
+  } catch (err) {
+    console.error('[runAllAgents] synthesis failed (non-critical):', err)
+  }
+
   revalidatePath(`/ideas/${ideaId}`)
   revalidatePath('/dashboard')
 }
