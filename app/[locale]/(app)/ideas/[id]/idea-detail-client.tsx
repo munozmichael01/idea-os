@@ -47,6 +47,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [isLg, setIsLg] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
+  const [confirmReanalyzeOpen, setConfirmReanalyzeOpen] = React.useState(false);
 
   React.useEffect(() => {
     const saved = localStorage.getItem('idea-chat-open');
@@ -112,6 +113,20 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   };
 
   const handleRunAllAgents = () => {
+    // Implement change detection logic
+    const lastAnalysisDate = idea.analyses.length > 0
+      ? new Date(Math.max(...idea.analyses.map(a => new Date(a.createdAt).getTime())))
+      : null;
+
+    const hasChangesSinceLastAnalysis = !lastAnalysisDate || 
+      new Date(idea.updatedAt) > lastAnalysisDate;
+
+    if (!hasChangesSinceLastAnalysis && !confirmReanalyzeOpen) {
+      setConfirmReanalyzeOpen(true);
+      return;
+    }
+
+    setConfirmReanalyzeOpen(false);
     setIsAnalyzingAll(true);
     runAllAgents(idea.id).catch((error) => {
       console.error('Error running all agents:', error);
@@ -759,6 +774,43 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
             >
               Cancelar
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Re-analyze */}
+      {confirmReanalyzeOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setConfirmReanalyzeOpen(false)}
+        >
+          <div
+            className="bg-[var(--bg-elev)] border border-[var(--border-subtle)] rounded-[20px] p-8 w-full max-w-[420px] flex flex-col gap-6 shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 text-[var(--accent-pri)]">
+              <Sparkles className="h-5 w-5" />
+              <h2 className="text-[18px] font-bold font-display text-[var(--text-primary)]">¿Re-analizar sin cambios?</h2>
+            </div>
+            <p className="text-[14px] text-[var(--text-secondary)] leading-relaxed">
+              No hemos detectado cambios en el contexto de esta idea desde el último análisis. El resultado podría ser similar al actual.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 mt-2">
+              <Button
+                variant="secondary"
+                className="flex-1 h-11 border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                onClick={() => setConfirmReanalyzeOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="flex-1 h-11 bg-[var(--accent-pri)] text-[var(--accent-pri-ink)] hover:bg-[var(--accent-pri-hover)] font-bold"
+                onClick={handleRunAllAgents}
+              >
+                Re-analizar de todas formas
+              </Button>
+            </div>
           </div>
         </div>
       )}
