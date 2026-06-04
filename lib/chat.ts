@@ -54,6 +54,11 @@ export function buildChatSystemPrompt(idea: Idea, analyses: Analysis[]): string 
 
   lines.push(
     '',
+    '═══ RESTRICCIONES IMPORTANTES ═══',
+    'NO puedes acceder a URLs, links ni páginas web. Si el usuario comparte un enlace (LinkedIn,',
+    'artículo, doc, etc.), responde exactamente: "No puedo abrir enlaces. Pega aquí el contenido',
+    'directamente y lo analizo." Nunca inventes ni supongas el contenido de un URL.',
+    '',
     '═══ INSTRUCCIÓN ESPECIAL ═══',
     'Si el usuario revela información nueva, factual y específica que enriquecería el análisis',
     'de algún agente (ej: "ya tengo 200 clientes pagando", "mi co-founder es ex-Google"),',
