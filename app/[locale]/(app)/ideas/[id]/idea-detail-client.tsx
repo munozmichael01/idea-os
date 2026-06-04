@@ -113,12 +113,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   };
 
   const handleRunAllAgents = () => {
-    // Reemplazamos la lógica de fechas (idea.updatedAt > lastAnalysisDate) porque idea.updatedAt 
-    // cambia al generar resúmenes, pitch decks o cambiar el estado, lo que causaba falsos positivos.
-    // Como cualquier edición de campos ya dispara un auto-análisis de los agentes afectados, 
-    // si agentsDone === totalAgents significa que no hay cambios pendientes de analizar.
     const isFullyAnalyzed = agentsDone === totalAgents;
-
     if (isFullyAnalyzed && !confirmReanalyzeOpen) {
       setConfirmReanalyzeOpen(true);
       return;
@@ -126,11 +121,18 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
 
     setConfirmReanalyzeOpen(false);
     setIsAnalyzingAll(true);
-    runAllAgents(idea.id).catch((error) => {
-      console.error('Error running all agents:', error);
-      toast.error('Error al ejecutar todos los agentes');
-      setIsAnalyzingAll(false);
-    });
+
+    runAllAgents(idea.id)
+      .then(async () => {
+        const updatedIdea = await getIdea(idea.id);
+        setIdea(updatedIdea);
+        toast.success('Análisis completo');
+      })
+      .catch((error) => {
+        console.error('Error running all agents:', error);
+        toast.error('Error al ejecutar todos los agentes');
+      })
+      .finally(() => setIsAnalyzingAll(false));
   };
 
   const handleGenerateContext = async () => {
