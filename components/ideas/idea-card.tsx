@@ -7,7 +7,7 @@ import { ScoreRing, scoreColor, scoreLabel, scoreBg } from '@/components/ui/scor
 import { IdeaWithAnalyses } from '@/lib/types';
 
 interface IdeaCardProps {
-  idea: IdeaWithAnalyses;
+  idea: any; // Using any to pick up new score fields if types not yet refreshed
   delay?: number;
 }
 
@@ -16,7 +16,7 @@ export function IdeaCard({ idea, delay = 0 }: IdeaCardProps) {
   
   // Count agents done (mock logic based on available analyses)
   const agentsDone = idea.analyses?.length || 0;
-  const totalAgents = 5;
+  const totalAgents = 6;
 
   return (
     <Link href={`/ideas/${idea.id}`}>
@@ -40,7 +40,21 @@ export function IdeaCard({ idea, delay = 0 }: IdeaCardProps) {
               )}
             </div>
           </div>
-          <ScoreRing value={idea.compositeScore} size={64} stroke={4} animateDelay={delay} />
+          <div className="flex flex-col items-center gap-2">
+            <ScoreRing value={idea.compositeScore} size={64} stroke={4} animateDelay={delay} />
+            <div className="flex gap-1.5">
+              {idea.opportunityScore != null && (
+                <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--accent-pri)] text-[var(--accent-pri-ink)]">
+                  OPP {idea.opportunityScore.toFixed(1)}
+                </span>
+              )}
+              {idea.executionScore != null && (
+                <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--blue)] text-white">
+                  EXE {idea.executionScore.toFixed(1)}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-wrap justify-between items-center gap-2 min-w-0">
@@ -80,7 +94,7 @@ export function IdeaCard({ idea, delay = 0 }: IdeaCardProps) {
           <div className="idea-stat">
             <div className="idea-stat-label">
               <span>Análisis</span>
-              <span className="val">{agentsDone}<span style={{fontSize: 13, color:'var(--text-muted)', fontWeight:400}}>/5</span></span>
+              <span className="val">{agentsDone}<span style={{fontSize: 13, color:'var(--text-muted)', fontWeight:400}}>/6</span></span>
             </div>
           </div>
         </div>

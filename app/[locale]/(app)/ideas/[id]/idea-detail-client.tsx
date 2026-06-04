@@ -276,7 +276,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
     return acc;
   }, []);
   const agentsDone = new Set(idea.analyses?.map((a: Analysis) => a.agentType) ?? []).size;
-  const totalAgents = 5;
+  const totalAgents = 6;
 
   if (!mounted) return null;
 
@@ -511,9 +511,29 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
             : { width: '100%', maxWidth: '100%', minWidth: 0, padding: '1.5rem', borderRadius: '20px' }
           }
         >
-          <ScoreRing value={idea.compositeScore} size={110} stroke={8} />
+          <div className="flex flex-col items-center gap-2">
+            <ScoreRing value={idea.compositeScore} size={110} stroke={8} />
+            <div className="score-meta-label text-center text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-[0.2em]">Score compuesto</div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 w-full border-y border-[var(--border-subtle)] py-6">
+            <div className="flex flex-col items-center gap-2">
+              <ScoreRing value={idea.opportunityScore ?? null} size={64} stroke={4} />
+              <div className="text-center">
+                <div className="text-[10px] font-mono text-[var(--accent-pri)] uppercase tracking-wider font-bold">Opportunity</div>
+                <div className="text-[9px] text-[var(--text-muted)] leading-tight max-w-[80px]">¿Vale la pena perseguir esto?</div>
+              </div>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <ScoreRing value={idea.executionScore ?? null} size={64} stroke={4} />
+              <div className="text-center">
+                <div className="text-[10px] font-mono text-[var(--blue)] uppercase tracking-wider font-bold">Execution</div>
+                <div className="text-[9px] text-[var(--text-muted)] leading-tight max-w-[80px]">¿Está el equipo listo?</div>
+              </div>
+            </div>
+          </div>
+
           <div className="score-panel-meta w-full">
-            <div className="score-meta-label text-center text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-[0.2em] mb-4">Score compuesto</div>
             <div className="kpi-row space-y-3">
               <div className="flex flex-col gap-1.5">
                 <div className="kpi-head flex justify-between items-center text-[12px] font-medium">
@@ -586,6 +606,26 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
               Análisis por agente
               <span className="sub font-normal text-[13px] text-[var(--text-muted)] font-sans">{agentsDone} / {totalAgents} completos</span>
             </h2>
+
+            {/* Problem Validation Highlight */}
+            <div className="mb-10">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[var(--border-subtle)]" />
+                <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-[var(--red)] bg-[var(--bg-elev)] px-3 py-1 rounded-full border border-[var(--red)]/20">
+                  ¿Existe el problema?
+                </span>
+                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[var(--border-subtle)]" />
+              </div>
+              <div className="max-w-[100%]">
+                <AgentAnalysisCard 
+                  agentType="problem"
+                  analysis={idea.analyses.find((a: Analysis) => a.agentType === 'problem')}
+                  isAnalyzing={analyzingAgents.has('problem')}
+                  onAnalyze={() => handleRunAgent('problem')}
+                />
+              </div>
+            </div>
+
             <div
               className="agents-grid overflow-hidden"
               style={isLg
@@ -603,7 +643,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
                 isAnalyzing={isSummarizing}
                 onAnalyze={handleSummarize}
               />
-              {analysisAgents.map((agentType) => (
+              {analysisAgents.filter(a => a !== 'problem').map((agentType) => (
                 <AgentAnalysisCard 
                   key={agentType}
                   agentType={agentType}

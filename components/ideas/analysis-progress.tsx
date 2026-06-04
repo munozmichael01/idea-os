@@ -19,6 +19,7 @@ interface AnalysisProgressProps {
 }
 
 const AGENTS: { id: AgentType, name: string, short: string, color: string }[] = [
+  { id: 'problem', name: 'Problem Validation', short: 'PROB', color: 'var(--red)' },
   { id: 'market', name: 'Market Intelligence', short: 'MKT', color: 'var(--accent-pri)' },
   { id: 'competition', name: 'Competitive Strategy', short: 'COMP', color: 'var(--orange)' },
   { id: 'economics', name: 'Unit Economics', short: 'ECON', color: 'var(--yellow)' },
@@ -30,6 +31,7 @@ function buildThoughts(sector?: string, targetMarket?: string): Record<string, s
   const dom = sector || 'el sector';
   const mkt = targetMarket || 'el mercado objetivo';
   return {
+    problem:      ['Analizando intensidad del dolor', 'Buscando evidencia de demanda', 'Evaluando urgencia del problema', 'Identificando alternativas actuales'],
     market:       [`Calculando TAM/SAM para ${dom}`, `Analizando tendencias en ${mkt}`, 'Buscando benchmarks de crecimiento', 'Evaluando timing de entrada al mercado'],
     competition:  [`Mapeando competidores en ${dom}`, `Analizando players en ${mkt}`, 'Evaluando riesgo de plataformización', 'Buscando moats defendibles'],
     economics:    ['Modelando estructura de ingresos', 'Estimando CAC y LTV', 'Calculando curva de churn', 'Sensibilidad al precio y márgenes'],
@@ -38,13 +40,14 @@ function buildThoughts(sector?: string, targetMarket?: string): Record<string, s
   };
 }
 
-// 5 agents, evenly spaced 72° apart
+// 6 agents, evenly spaced 60° apart
 const AGENT_POSITIONS = [
   { angle: -90 },
-  { angle: -18 },
-  { angle:  54 },
-  { angle: 126 },
-  { angle: 198 },
+  { angle: -30 },
+  { angle:  30 },
+  { angle:  90 },
+  { angle: 150 },
+  { angle: 210 },
 ];
 
 const polar = (cx: number, cy: number, r: number, angleDeg: number): [number, number] => {
