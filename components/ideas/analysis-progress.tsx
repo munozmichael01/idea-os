@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { AgentType } from '@/lib/types';
+import { AgentType, IdeaFull } from '@/lib/types';
 import { ScoreRing } from '@/components/ui/score-ring';
 import { Check, ChevronRight, ChevronLeft, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,7 @@ import { useRouter } from '@/navigation';
 
 interface AnalysisProgressProps {
   ideaId: string;
+  idea?: IdeaFull;
   ideaTitle?: string;
   ideaSector?: string;
   ideaTargetMarket?: string;
@@ -51,11 +52,11 @@ const polar = (cx: number, cy: number, r: number, angleDeg: number): [number, nu
   return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
 };
 
-export function AnalysisProgress({ ideaId, ideaTitle, ideaSector, ideaTargetMarket, onViewResults, onBack }: AnalysisProgressProps) {
+export function AnalysisProgress({ ideaId, idea: initialIdea, ideaTitle, ideaSector, ideaTargetMarket, onViewResults, onBack }: AnalysisProgressProps) {
   const [tick, setTick] = React.useState(0);
   const [logLines, setLogLines] = React.useState<{ id: number; agent: any; msg: string; ts: number }[]>([]);
   const [celebrate, setCelebrate] = React.useState(false);
-  const [realScore, setRealScore] = React.useState<number | null>(null);
+  const [realIdea, setRealIdea] = React.useState<IdeaFull | undefined>(initialIdea);
   const router = useRouter();
   const THOUGHTS = buildThoughts(ideaSector, ideaTargetMarket);
 
@@ -71,9 +72,22 @@ export function AnalysisProgress({ ideaId, ideaTitle, ideaSector, ideaTargetMark
     const dur = 5 + (i % 3) * 0.8;
     const t = tick / 5;
     let progress, status, score = null;
-    if (t < start)              { progress = 0; status = 'idle'; }
-    else if (t > start + dur)   { progress = 1; status = 'done'; score = 6.8 + (i*0.4) % 2.6; }
-    else                        { progress = (t - start) / dur; status = 'running'; }
+    
+    if (t < start) {
+      progress = 0; status = 'idle';
+    } else if (t > start + dur) {
+      progress = 1; status = 'done';
+      
+      // Bug 1 Fix — Use real score if available
+      const agentAnalysis = realIdea?.analyses
+        ?.filter(a => a.agentType === agent.id)
+        ?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+      
+      score = agentAnalysis?.score ?? (6.8 + (i * 0.4) % 2.6);
+    } else {
+      progress = (t - start) / dur; status = 'running';
+    }
+    
     return { agent, progress, status, score };
   });
 
@@ -85,7 +99,7 @@ export function AnalysisProgress({ ideaId, ideaTitle, ideaSector, ideaTargetMark
     if (allDone && !celebrate) {
       const id = setTimeout(() => setCelebrate(true), 250);
       import('@/lib/actions/ideas').then(m => m.getIdea(ideaId)).then(idea => {
-        setRealScore(idea.compositeScore ?? null);
+        setRealIdea(idea);
       }).catch(() => {});
       return () => clearTimeout(id);
     }
@@ -222,7 +236,7 @@ export function AnalysisProgress({ ideaId, ideaTitle, ideaSector, ideaTargetMark
               <g key={`lbl-${agent.id}`} className={cn("agent-label", status)}>
                 <text x={lx} y={ly - 4} className="lbl-name" textAnchor={anchor as any}>{agent.name}</text>
                 <text x={lx} y={ly + 10} className="lbl-meta" textAnchor={anchor as any} style={{ fill: agent.color }}>
-                  {status === 'done' ? `${score?.toFixed(1)} / 10` : status === 'running' ? 'analizando' : 'en cola'}
+                  {status === 'done' ? (score != null ? `${score.toFixed(1)} / 10` : '— / 10') : status === 'running' ? 'analizando' : 'en cola'}
                 </text>
               </g>
             );
@@ -285,11 +299,16 @@ export function AnalysisProgress({ ideaId, ideaTitle, ideaSector, ideaTargetMark
       {allDone && (
         <div className="analyze-success">
           <div className="success-left">
-            <ScoreRing value={realScore ?? 0} size={92} stroke={5} />
+            <ScoreRing value={realIdea?.compositeScore ?? null} size={92} stroke={5} />
             <div className="success-meta">
               <span className="kicker">Score compuesto generado</span>
-              <h3 className="success-title">Idea sólida, lista para validar.</h3>
+              <h3 className="success-title">
+                {realIdea?.compositeScore != null ? (realIdea.compositeScore >= 7.5 ? 'Idea sólida, lista para validar.' : 'Idea con potencial, requiere ajustes.') : 'Calculando veredicto...'}
+              </h3>
               <p className="success-body">Hipótesis generadas · oportunidades de mejora · riesgos identificados.</p>
+              <div className="text-[20px] font-bold text-[var(--text-primary)] mt-1">
+                Score: {realIdea?.compositeScore != null ? realIdea.compositeScore.toFixed(1) : '—'}
+              </div>
             </div>
           </div>
           <div className="success-actions">

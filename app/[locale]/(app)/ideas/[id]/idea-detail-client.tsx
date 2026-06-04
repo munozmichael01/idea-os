@@ -271,6 +271,7 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
       <div className="main min-h-svh flex items-center justify-center p-4">
         <AnalysisProgress
           ideaId={idea.id}
+          idea={idea}
           ideaTitle={idea.title}
           ideaSector={idea.sector ?? undefined}
           ideaTargetMarket={idea.targetMarket ?? undefined}
