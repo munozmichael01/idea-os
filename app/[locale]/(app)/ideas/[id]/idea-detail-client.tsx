@@ -113,15 +113,13 @@ export function IdeaDetailClient({ initialIdea }: IdeaDetailClientProps) {
   };
 
   const handleRunAllAgents = () => {
-    // Implement change detection logic
-    const lastAnalysisDate = idea.analyses.length > 0
-      ? new Date(Math.max(...idea.analyses.map(a => new Date(a.createdAt).getTime())))
-      : null;
+    // Reemplazamos la lógica de fechas (idea.updatedAt > lastAnalysisDate) porque idea.updatedAt 
+    // cambia al generar resúmenes, pitch decks o cambiar el estado, lo que causaba falsos positivos.
+    // Como cualquier edición de campos ya dispara un auto-análisis de los agentes afectados, 
+    // si agentsDone === totalAgents significa que no hay cambios pendientes de analizar.
+    const isFullyAnalyzed = agentsDone === totalAgents;
 
-    const hasChangesSinceLastAnalysis = !lastAnalysisDate || 
-      new Date(idea.updatedAt) > lastAnalysisDate;
-
-    if (!hasChangesSinceLastAnalysis && !confirmReanalyzeOpen) {
+    if (isFullyAnalyzed && !confirmReanalyzeOpen) {
       setConfirmReanalyzeOpen(true);
       return;
     }
