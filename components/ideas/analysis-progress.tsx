@@ -97,17 +97,32 @@ export function AnalysisProgress({ ideaId, idea: initialIdea, ideaTitle, ideaSec
   const doneCount = tiles.filter(t => t.status === 'done').length;
   const allDone = doneCount === tiles.length;
 
-  // Trigger one-shot celebrate + fetch real score when all done
+  // Trigger one-shot celebrate when all done
   React.useEffect(() => {
     if (allDone && !celebrate) {
       const id = setTimeout(() => setCelebrate(true), 250);
-      import('@/lib/actions/ideas').then(m => m.getIdea(ideaId)).then(idea => {
-        setRealIdea(idea);
-      }).catch(() => {});
       return () => clearTimeout(id);
     }
     return undefined;
-  }, [allDone, celebrate, ideaId]);
+  }, [allDone, celebrate]);
+
+  // Poll the backend until the composite score is actually ready
+  React.useEffect(() => {
+    if (!allDone) return;
+    if (realIdea?.compositeScore != null) return;
+
+    let cancelled = false;
+    const poll = () => {
+      import('@/lib/actions/ideas').then(m => m.getIdea(ideaId)).then(idea => {
+        if (cancelled) return;
+        setRealIdea(idea);
+      }).catch(() => {});
+    };
+
+    poll();
+    const interval = setInterval(poll, 2500);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [allDone, realIdea?.compositeScore, ideaId]);
 
   // Append a log line every couple ticks from a running agent
   React.useEffect(() => {
